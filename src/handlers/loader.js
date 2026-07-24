@@ -1,9 +1,15 @@
 const fs = require('fs');
 const path = require('path');
-const { REST, Routes } = require('discord.js');
+const { REST, Routes, Collection } = require('discord.js'); // Importamos o Collection aqui
 
 module.exports = async (client) => {
     console.log('[SISTEMA] Iniciando o Coração Intocável...');
+
+    // BLINDAGEM ABSOLUTA: Criando as gavetas na memória caso o index.js não tenha criado
+    if (!client.commands) client.commands = new Collection();
+    if (!client.buttons) client.buttons = new Collection();
+    if (!client.modals) client.modals = new Collection();
+    if (!client.selects) client.selects = new Collection(); // Criando a gaveta dos Selects!
 
     const commandsArray = [];
     
