@@ -15,6 +15,10 @@ model Faccao {
   canalDiretoria    String?        // Canal restrito onde chegam as fichas
   cargoMembro       String?        // Cargo que o bot vai dar pra quem for aprovado
   membros           Membro[]
+  vitrineTitulo   String?
+  vitrineDesc     String?
+  vitrineBanner   String?
+  vitrineRodape   String?
 }
 
 model Membro {
