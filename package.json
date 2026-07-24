@@ -1,18 +1,23 @@
 {
-  "name": "kodafacv2",
-  "version": "2.0.0",
-  "description": "Bot SaaS V2 Components para Faccoes FiveM",
+  "name": "gpedit-odorizzi",
+  "version": "1.0.0",
+  "description": "",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "postinstall": "prisma generate --schema=prisma/schema.prisma"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "prisma generate"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
   "dependencies": {
-    "@prisma/client": "^5.0.0",
-    "discord.js": "^14.14.0",
-    "dotenv": "^16.4.0"
+    "@prisma/client": "^7.9.0",
+    "discord.js": "^14.27.0",
+    "dotenv": "^17.4.2",
+    "pg": "^8.22.0"
   },
   "devDependencies": {
-    "prisma": "^5.0.0"
+    "prisma": "^7.9.0"
   }
 }
