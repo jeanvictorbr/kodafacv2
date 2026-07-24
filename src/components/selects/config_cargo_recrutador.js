@@ -1,18 +1,16 @@
 const prisma = require('../../database/prisma');
 
 module.exports = {
-    customId: 'config_canal_diretoria',
+    customId: 'config_cargo_recrutador',
     async execute(interaction) {
-        // Pega o ID do canal selecionado no dropdown
-        const canalId = interaction.values[0];
+        const cargoId = interaction.values[0];
 
-        // Salva no banco de dados
         await prisma.faccao.update({
             where: { guildId: interaction.guildId },
-            data: { canalDiretoria: canalId }
+            data: { cargoRecrutador: cargoId }
         });
 
-        // Atualiza a tela em tempo real chamando o Hub de volta
+        // Refresh na tela
         const hubRecrutamento = require('../buttons/painel_rh_recrutamento');
         await hubRecrutamento.execute(interaction);
     }
