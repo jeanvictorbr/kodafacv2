@@ -1,77 +1,62 @@
-const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } = require('discord.js');
+const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags, EmbedBuilder } = require('discord.js');
 
 module.exports = {
-    // 1. Definição do Comando (O que aparece quando digita /)
     data: new SlashCommandBuilder()
         .setName('painel')
         .setDescription('Abre o QG do Patrão para gerenciar a facção.'),
 
-    // 2. Execução do Comando
     async execute(interaction, client) {
-        
-        // (Opcional) Trava de segurança: Só quem tem permissão de Admin pode abrir o painel
-        /*
-        if (!interaction.member.permissions.has('Administrator')) {
-            return interaction.reply({
-                content: '🚫 **Visão errada!** Você não tem acesso de chefia para abrir o QG.',
-                flags: MessageFlags.Ephemeral
-            });
-        }
-        */
+        // 1. OTIMIZAÇÃO ANTI-LAG (Resolve o erro "Não respondeu a tempo")
+        // O deferReply avisa o Discord: "Espera aí que o pai tá processando", dando 15 segundos pro bot pensar.
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-        // 3. Construção do Visual Limpo e Otimizado (Novo Markdown do Discord)
-        // Dica: Cuidado com a indentação aqui dentro da crase. O Discord lê os espaços, 
-        // então deixe colado no canto esquerdo.
-        const painelTexto = `
-# 💼 QG do Patrão | Central de Gestão
-*Visão, chefe! O que vamos adiantar hoje? Escolhe a fita aí embaixo.*
----
-**Status da Firma:** 🔴 \`Plano Cria (Grátis)\`
-*Ative uma Key para liberar o arsenal completo e automatizar a gestão.*
+        // 2. CONSTRUÇÃO DA EMBED CLEAN (Estilo da image_781be0.jpg)
+        const painelEmbed = new EmbedBuilder()
+            .setColor('#FF0000') // A cor da barra lateral (Vermelho)
+            .setImage('https://i.imgur.com/XU9nO0J.png') // Coloque aqui o link direto (imgur/discord) do seu BANNER GRANDE
+            .setTitle('QG DO PATRÃO | Central de Gestão')
+            .setDescription('Visão, chefe! O que vamos adiantar hoje? Escolha a fita aí embaixo.\n\n**A partir de** `Plano Cria (Grátis)`\nAtive uma Key VIP para liberar o arsenal completo e automatizar a gestão.')
+            .addFields(
+                { name: '📋 Gestão da Rapaziada', value: 'Recrutamento, Ponto, Metas de Farm e RH da sua facção.' },
+                { name: '🔫 Arsenal & Baú 💎', value: '`[REQUER VIP]` Auditoria de estoque, lavagem de dinheiro e caixa 2.' },
+                { name: '⚖️ Tribunal do Crime', value: 'Sistema de multas, cobranças, strikes e XP de Fidelidade.' }
+            )
+            .setFooter({ text: `KODA STUDIOS | #Tropa • ${new Date().toLocaleDateString('pt-BR')}` }); // Rodapé idêntico ao da print
 
-### 📋 Gestão da Rapaziada
-> Recrutamento, Ponto, Metas de Farm e RH da sua facção.
-
-### 🔫 Arsenal & Baú 💎
-> \`[REQUER VIP]\` Auditoria de estoque, lavagem de dinheiro e caixa 2.
-
-### ⚖️ Tribunal do Crime
-> Sistema de multas, cobranças, strikes e XP de Fidelidade.
-`;
-
-        // 4. Criação dos Components (Botões divididos em "Prateleiras" / Action Rows)
-        // Primeira linha de botões: Os Módulos
+        // 3. CRIAÇÃO DOS BOTÕES
         const rowModulos = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId('painel_rh')
-                .setLabel('📋 Gestão e RH')
-                .setStyle(ButtonStyle.Primary), // Azul (Ação principal)
+                .setLabel('Gestão e RH')
+                .setEmoji('📋')
+                .setStyle(ButtonStyle.Primary), // Azul
                 
             new ButtonBuilder()
                 .setCustomId('painel_arsenal')
-                .setLabel('🔫 Arsenal (VIP)')
-                .setStyle(ButtonStyle.Secondary), // Cinza (Deixamos clicável para vender o upsell do VIP)
+                .setLabel('Arsenal (VIP)')
+                .setEmoji('🔫')
+                .setStyle(ButtonStyle.Secondary), // Cinza (estilo o botão "Ver opções" da sua print)
                 
             new ButtonBuilder()
                 .setCustomId('painel_tribunal')
-                .setLabel('⚖️ Tribunal')
+                .setLabel('Tribunal')
+                .setEmoji('⚖️')
                 .setStyle(ButtonStyle.Danger) // Vermelho
         );
 
-        // Segunda linha de botões: Ações da Conta (VIP)
         const rowConta = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId('painel_ativar_key')
-                .setLabel('🔑 Resgatar Chave VIP')
+                .setLabel('Resgatar Chave VIP')
+                .setEmoji('🔑')
                 .setStyle(ButtonStyle.Success) // Verde
         );
 
-        // 5. Envio da Resposta
-        // Usamos as flags para garantir o envio oculto (ephemeral) que não gasta rate limit visual do servidor
-        await interaction.reply({
-            content: painelTexto.trim(), // trim() corta qualquer linha em branco sobrando no início/fim
-            components: [rowModulos, rowConta],
-            flags: MessageFlags.Ephemeral 
+        // 4. ENVIO DA RESPOSTA
+        // Como usamos deferReply lá em cima, agora usamos editReply para entregar a mensagem pronta
+        await interaction.editReply({
+            embeds: [painelEmbed],
+            components: [rowModulos, rowConta]
         });
     },
 };
