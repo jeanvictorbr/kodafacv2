@@ -1,4 +1,4 @@
-require('dotenv').config(); // Mantém para testes locais, mas não afeta a nuvem se já injetado
+ // Mantém para testes locais, mas não afeta a nuvem se já injetado
 const { execSync } = require('child_process');
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const coreLoader = require('./handlers/loader');
