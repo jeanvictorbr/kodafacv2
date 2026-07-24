@@ -2,13 +2,18 @@ const prisma = require('../../database/prisma');
 
 module.exports = {
     customId: 'config_canal_diretoria',
-    async execute(interaction) {
-        await interaction.deferUpdate();
-        await prisma.faccao.update({
+    async execute(interaction, client) {
+        const canalId = interaction.values[0];
+
+        await prisma.faccao.upsert({
             where: { guildId: interaction.guildId },
-            data: { canalDiretoria: interaction.values[0] }
+            update: { canalDiretoria: canalId },
+            create: { guildId: interaction.guildId, canalDiretoria: canalId }
         });
-        const hub = require('../buttons/painel_rh_recrutamento');
-        await hub.execute(interaction);
+
+        return interaction.reply({
+            content: `✅ Canal da Diretoria configurado para <#${canalId}>!`,
+            flags: 64
+        });
     }
-}
+};
