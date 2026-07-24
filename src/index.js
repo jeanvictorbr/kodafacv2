@@ -8,8 +8,8 @@ const coreLoader = require('./handlers/loader');
 // ==========================================
 console.log('[SISTEMA] Verificando se há novas tabelas ou alterações no Prisma...');
 try {
-    // Sincroniza o PostgreSQL com o schema.prisma atual automaticamente
-    execSync('npx prisma db push --skip-generate --accept-data-loss', { stdio: 'inherit' });
+    // Na V7 do Prisma, removemos o --skip-generate. O --accept-data-loss garante a sincronização.
+    execSync('npx prisma db push --accept-data-loss', { stdio: 'inherit' });
     console.log('[BANCO DE DADOS] Sincronização concluída! Estrutura 100% atualizada.');
 } catch (error) {
     console.error('[ERRO CRÍTICO] O bot não conseguiu sincronizar as tabelas:', error);
