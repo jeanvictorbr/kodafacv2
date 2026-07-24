@@ -2,10 +2,10 @@
   "name": "gpedit-odorizzi",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "prisma generate --schema=prisma/schema.prisma"
+    "start": "node src/index.js"
   },
   "keywords": [],
   "author": "",
