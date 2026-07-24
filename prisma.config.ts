@@ -3,6 +3,6 @@ import { defineConfig } from '@prisma/config';
 export default defineConfig({
   schema: './prisma/schema.prisma',
   earlyAccess: true,
-  // A propriedade 'url' DEVE estar definida para o 'db push' funcionar no Prisma 7
+  // Força o Prisma a procurar no ambiente (Discloud) ou no arquivo local
   url: process.env.DATABASE_URL, 
 });
