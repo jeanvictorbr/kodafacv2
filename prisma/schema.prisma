@@ -1,10 +1,12 @@
 generator client {
-  provider = "prisma-client-js"
-  output   = "../src/database/generated/client"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+  output        = "../src/database/generated/client"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Faccao {
@@ -12,43 +14,30 @@ model Faccao {
   nomeFac         String?
   isPremium       Boolean   @default(false)
   premiumVenceEm  DateTime?
-  membros         Membro[]  // Relacionamento existente
 
-  // Colunas do Setup de RH
+  // Setup do RH / Diretoria
   canalDiretoria  String?
   cargoMembro     String?
   cargoRecrutador String?
 
-  // Colunas de Customização da Vitrine Pública
-  vitrineTitulo   String?
-  vitrineDesc     String?
+  // Personalização da Vitrine
+  vitrineTitulo   String?   @default("🪖 Recrutamento Aberto")
+  vitrineDesc     String?   @default("Junte-se à nossa facção. Preencha o formulário e aguarde a avaliação da diretoria.")
   vitrineBanner   String?
-  vitrineRodape   String?
+  vitrineRodape   String?   @default("Sistema de Recrutamento")
+
+  membros         Membro[]
 }
 
 model Membro {
-  userId        String
-  faccaoId      String
-  xpFidelidade  Int      @default(0)
-  advertencias  Int      @default(0)
-  faccao        Faccao   @relation(fields: [faccaoId], references: [guildId], onDelete: Cascade)
-
-  @@id([userId, faccaoId]) 
-}
-
-model ChaveVIP {
-  keyCode String  @id
-  dias    Int
-  usada   Boolean @default(false)
-}
-
-model Recrutamento {
-  id           String   @id @default(uuid())
-  guildId      String   // Para saber de qual servidor é a ficha
-  userId       String   
-  nomeRp       String
-  passaporte   String
-  status       String   @default("PENDENTE") 
-  recrutadorId String?  
-  criadoEm     DateTime @default(now())
+  id          String   @id @default(uuid())
+  guildId     String
+  userId      String
+  nomeRp      String?
+  passaporte  String?
+  cargo       String?
+  advertencias Int     @default(0)
+  createdAt   DateTime @default(now())
+  
+  faccao      Faccao   @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
 }

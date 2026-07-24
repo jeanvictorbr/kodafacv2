@@ -2,8 +2,8 @@ const prisma = require('../../database/prisma');
 
 module.exports = {
     id: 'config_canal_diretoria',
-    customId: 'config_canal_diretoria',
     name: 'config_canal_diretoria',
+    customId: 'config_canal_diretoria',
     async execute(interaction, client) {
         const canalId = interaction.values[0];
 
@@ -14,7 +14,7 @@ module.exports = {
         });
 
         return interaction.reply({
-            content: `✅ Canal da Diretoria configurado para <#${canalId}>!`,
+            content: `✅ Padrão! Canal da Diretoria setado para <#${canalId}>.`,
             flags: 64
         });
     }

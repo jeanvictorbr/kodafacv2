@@ -2,8 +2,8 @@ const prisma = require('../../database/prisma');
 
 module.exports = {
     id: 'config_cargo_membro',
-    customId: 'config_cargo_membro',
     name: 'config_cargo_membro',
+    customId: 'config_cargo_membro',
     async execute(interaction, client) {
         const cargoId = interaction.values[0];
 
@@ -14,7 +14,7 @@ module.exports = {
         });
 
         return interaction.reply({
-            content: `✅ Cargo de Membro configurado para <@&${cargoId}>!`,
+            content: `✅ Padrão! Cargo de Membro setado para <@&${cargoId}>.`,
             flags: 64
         });
     }

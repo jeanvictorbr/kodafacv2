@@ -40,7 +40,8 @@ module.exports = async (client) => {
         const buttonFiles = fs.readdirSync(buttonsPath).filter(f => f.endsWith('.js'));
         for (const file of buttonFiles) {
             const button = require(`../components/buttons/${file}`);
-            if (button.customId) client.buttons.set(button.customId, button);
+            const btnId = button.customId || button.id || button.name;
+            if (btnId) client.buttons.set(btnId, button);
         }
         console.log(`[CARREGADO] ${buttonFiles.length} Botões.`);
     }
@@ -51,20 +52,26 @@ module.exports = async (client) => {
         const modalFiles = fs.readdirSync(modalsPath).filter(f => f.endsWith('.js'));
         for (const file of modalFiles) {
             const modal = require(`../components/modals/${file}`);
-            if (modal.customId) client.modals.set(modal.customId, modal);
+            const modalId = modal.customId || modal.id || modal.name;
+            if (modalId) client.modals.set(modalId, modal);
         }
         console.log(`[CARREGADO] ${modalFiles.length} Modais.`);
     }
 
-    // 5. CARREGAR SELECT MENUS (Com suporte duplo a customId / name)
+    // 5. CARREGAR SELECT MENUS (Blindado contra múltiplas nomenclaturas)
     const selectsPath = path.join(__dirname, '../components/selects');
     if (fs.existsSync(selectsPath)) {
         const selectFiles = fs.readdirSync(selectsPath).filter(file => file.endsWith('.js'));
         for (const file of selectFiles) {
             const select = require(`../components/selects/${file}`);
-            const identifier = select.customId || select.name;
+            
+            // Força a captura do identificador não importa como foi exportado
+            const identifier = select.customId || select.name || select.id;
+            
             if (identifier) {
                 client.selects.set(identifier, select);
+            } else {
+                console.log(`[ERRO NO LOADER] O Select Menu '${file}' não exportou um 'customId' ou 'id' válido.`);
             }
         }
         console.log(`[CARREGADO] ${selectFiles.length} Selects.`);
