@@ -50,18 +50,21 @@ module.exports = async (client) => {
         }
         console.log(`[CARREGADO] ${modalFiles.length} Modais.`);
     }
-// Carregamento dos Select Menus
-        const selectsPath = './src/components/selects';
-        if (fs.existsSync(selectsPath)) {
-            const selectFiles = fs.readdirSync(selectsPath).filter(file => file.endsWith('.js'));
-            for (const file of selectFiles) {
-                const select = require(`../components/selects/${file}`);
-                if (select.customId) {
-                    client.selects.set(select.customId, select);
-                }
+
+    // 5. CARREGAR SELECT MENUS
+    const selectsPath = path.join(__dirname, '../components/selects');
+    if (fs.existsSync(selectsPath)) {
+        const selectFiles = fs.readdirSync(selectsPath).filter(file => file.endsWith('.js'));
+        for (const file of selectFiles) {
+            const select = require(`../components/selects/${file}`);
+            if (select.customId) {
+                client.selects.set(select.customId, select);
             }
         }
-    // 5. REGISTRAR NA API
+        console.log(`[CARREGADO] ${selectFiles.length} Selects.`);
+    }
+
+    // 6. REGISTRAR NA API
     const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
     try {
         if (process.env.GUILD_TEST_ID) {
