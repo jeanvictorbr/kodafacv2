@@ -30,3 +30,13 @@ model ChaveVIP {
   dias    Int
   usada   Boolean @default(false)
 }
+
+model Recrutamento {
+  id           String   @id @default(uuid())
+  userId       String   // ID do Discord do candidato
+  nomeRp       String
+  passaporte   String
+  status       String   @default("PENDENTE") // PENDENTE, EM_TESTE, APROVADO, REPROVADO
+  recrutadorId String?  // ID do Discord de quem assumiu o recrutamento
+  criadoEm     DateTime @default(now())
+}
