@@ -1,6 +1,5 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, ChannelType, RoleSelectMenuBuilder } = require('discord.js');
-// Puxando do client gerado localmente na nossa estrutura
-const { PrismaClient } = require('../../database/generated/client');
+// Puxando a conexão central que já está configurada com os adapters do Prisma v7
+const prisma = require('../../database/prisma');
 const prisma = new PrismaClient();
 
 module.exports = {
