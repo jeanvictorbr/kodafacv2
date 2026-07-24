@@ -1,15 +1,14 @@
 const fs = require('fs');
 const path = require('path');
-const { REST, Routes, Collection } = require('discord.js'); // Importamos o Collection aqui
+const { REST, Routes, Collection } = require('discord.js');
 
 module.exports = async (client) => {
     console.log('[SISTEMA] Iniciando o Coração Intocável...');
 
-    // BLINDAGEM ABSOLUTA: Criando as gavetas na memória caso o index.js não tenha criado
     if (!client.commands) client.commands = new Collection();
     if (!client.buttons) client.buttons = new Collection();
     if (!client.modals) client.modals = new Collection();
-    if (!client.selects) client.selects = new Collection(); // Criando a gaveta dos Selects!
+    if (!client.selects) client.selects = new Collection();
 
     const commandsArray = [];
     
@@ -41,30 +40,31 @@ module.exports = async (client) => {
         const buttonFiles = fs.readdirSync(buttonsPath).filter(f => f.endsWith('.js'));
         for (const file of buttonFiles) {
             const button = require(`../components/buttons/${file}`);
-            client.buttons.set(button.customId, button);
+            if (button.customId) client.buttons.set(button.customId, button);
         }
         console.log(`[CARREGADO] ${buttonFiles.length} Botões.`);
     }
 
-    // 4. CARREGAR MODAIS (Formulários)
+    // 4. CARREGAR MODAIS
     const modalsPath = path.join(__dirname, '../components/modals');
     if (fs.existsSync(modalsPath)) {
         const modalFiles = fs.readdirSync(modalsPath).filter(f => f.endsWith('.js'));
         for (const file of modalFiles) {
             const modal = require(`../components/modals/${file}`);
-            client.modals.set(modal.customId, modal);
+            if (modal.customId) client.modals.set(modal.customId, modal);
         }
         console.log(`[CARREGADO] ${modalFiles.length} Modais.`);
     }
 
-    // 5. CARREGAR SELECT MENUS
+    // 5. CARREGAR SELECT MENUS (Com suporte duplo a customId / name)
     const selectsPath = path.join(__dirname, '../components/selects');
     if (fs.existsSync(selectsPath)) {
         const selectFiles = fs.readdirSync(selectsPath).filter(file => file.endsWith('.js'));
         for (const file of selectFiles) {
             const select = require(`../components/selects/${file}`);
-            if (select.customId) {
-                client.selects.set(select.customId, select);
+            const identifier = select.customId || select.name;
+            if (identifier) {
+                client.selects.set(identifier, select);
             }
         }
         console.log(`[CARREGADO] ${selectFiles.length} Selects.`);

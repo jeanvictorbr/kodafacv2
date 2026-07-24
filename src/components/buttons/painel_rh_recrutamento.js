@@ -16,15 +16,12 @@ module.exports = {
             });
         }
 
-        // --- VARIÁVEIS ESTRUTURAIS ---
         const canalDiretoria = faccao.canalDiretoria ? `<#${faccao.canalDiretoria}>` : '\`Não configurado\`';
         const cargoMembro = faccao.cargoMembro ? `<@&${faccao.cargoMembro}>` : '\`Não configurado\`';
         const cargoRecrutador = faccao.cargoRecrutador ? `<@&${faccao.cargoRecrutador}>` : '\`Não configurado\`';
         
-        // Agora o botão só libera se o canal, o cargo de membro E o de recrutador estiverem setados
         const isSetupCompleto = faccao.canalDiretoria && faccao.cargoMembro && faccao.cargoRecrutador;
 
-        // --- VARIÁVEIS VISUAIS ---
         const vTitulo = faccao.vitrineTitulo || '🪖 Recrutamento Aberto';
         const vDesc = faccao.vitrineDesc || 'Junte-se à nossa facção. Preencha o formulário e aguarde a avaliação.';
         const vBanner = faccao.vitrineBanner || '\`Padrão do Sistema\`';
@@ -35,7 +32,7 @@ module.exports = {
             components: [
                 {
                     type: 17, // Container
-                    accent_color: 0x1F8B4C, // Verde Tropa
+                    accent_color: 0x1F8B4C,
                     components: [
                         { 
                             type: 10,
@@ -43,37 +40,40 @@ module.exports = {
                         },
                         { type: 14, divider: true, spacing: 1 },
                         
-                        // SEÇÃO 1: ESTRUTURA
+                        // SEÇÃO 1: ESTRUTURA INTERNA
                         { 
                             type: 10, 
                             content: `**1️⃣ Estrutura Interna**\n🏛️ **Sala da Diretoria:** ${canalDiretoria}\n🎖️ **Cargo de Membro:** ${cargoMembro}\n🗣️ **Cargo Recrutador:** ${cargoRecrutador}` 
                         },
+                        // SELECT DE CANAL (TYPE 6 no JSON V2 do Discord para canais)
                         {
                             type: 1,
                             components: [
                                 {
-                                    type: 8, // TIPO 8 = CANAL (CORRIGIDO)
+                                    type: 6, 
                                     custom_id: "config_canal_diretoria",
                                     placeholder: "Selecionar Sala da Diretoria",
-                                    channel_types: [0] // GUILD_TEXT
+                                    channel_types: [0]
                                 }
                             ]
                         },
+                        // SELECT DE CARGO MEMBRO (TYPE 8 no JSON V2 para cargos)
                         {
                             type: 1,
                             components: [
                                 {
-                                    type: 6, // TIPO 6 = CARGO (CORRIGIDO)
+                                    type: 8, 
                                     custom_id: "config_cargo_membro",
                                     placeholder: "Selecionar Cargo de Membro"
                                 }
                             ]
                         },
+                        // SELECT DE CARGO RECRUTADOR (TYPE 8 no JSON V2 para cargos)
                         {
                             type: 1,
                             components: [
                                 {
-                                    type: 6, // TIPO 6 = CARGO
+                                    type: 8, 
                                     custom_id: "config_cargo_recrutador",
                                     placeholder: "Selecionar Cargo de Recrutador"
                                 }
@@ -82,7 +82,7 @@ module.exports = {
                         
                         { type: 14, divider: true, spacing: 1 },
                         
-                        // SEÇÃO 2: VISUAL
+                        // SEÇÃO 2: VISUAL DA VITRINE
                         { 
                             type: 10, 
                             content: `**2️⃣ Visual da Vitrine Pública**\n**Título:** ${vTitulo}\n**Descrição:** ${vDesc}\n**Banner URL:** ${vBanner}\n**Rodapé:** ${vRodape}` 
