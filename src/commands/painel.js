@@ -6,42 +6,37 @@ module.exports = {
         .setDescription('Abre o QG do Patrão para gerenciar a facção.'),
 
     async execute(interaction, client) {
-        // 1. OTIMIZAÇÃO ANTI-LAG (Resolve o erro "Não respondeu a tempo")
-        // O deferReply avisa o Discord: "Espera aí que o pai tá processando", dando 15 segundos pro bot pensar.
+        // Segura a interação para não dar o erro de tempo limite
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-        // 2. CONSTRUÇÃO DA EMBED CLEAN (Estilo da image_781be0.jpg)
+        // A MÁGICA DO VISUAL "CONTAINER" ACONTECE AQUI
         const painelEmbed = new EmbedBuilder()
-            .setColor('#FF0000') // A cor da barra lateral (Vermelho)
-            .setImage('https://i.imgur.com/XU9nO0J.png') // Coloque aqui o link direto (imgur/discord) do seu BANNER GRANDE
-            .setTitle('QG DO PATRÃO | Central de Gestão')
-            .setDescription('Visão, chefe! O que vamos adiantar hoje? Escolha a fita aí embaixo.\n\n**A partir de** `Plano Cria (Grátis)`\nAtive uma Key VIP para liberar o arsenal completo e automatizar a gestão.')
-            .addFields(
-                { name: '📋 Gestão da Rapaziada', value: 'Recrutamento, Ponto, Metas de Farm e RH da sua facção.' },
-                { name: '🔫 Arsenal & Baú 💎', value: '`[REQUER VIP]` Auditoria de estoque, lavagem de dinheiro e caixa 2.' },
-                { name: '⚖️ Tribunal do Crime', value: 'Sistema de multas, cobranças, strikes e XP de Fidelidade.' }
-            )
-            .setFooter({ text: `KODA STUDIOS | #Tropa • ${new Date().toLocaleDateString('pt-BR')}` }); // Rodapé idêntico ao da print
+            .setColor('#FF0000') // A cor da barra lateral (Vermelha igual da Fire)
+            // IMPORTANTE: Coloque um link real aqui! Se o link for falso, o layout quebra igual na sua print.
+            .setImage('https://i.pinimg.com/originals/3b/8a/d2/3b8ad2c7b1be2ce2433db9b897858bf4.gif') // Coloquei um banner de anime genérico só pra você ver funcionando perfeitamente.
+            .setTitle('QG DO PATRÃO | Central de Gestão') // Fica em negrito grandão (estilo o GROW A GARDEN)
+            .setDescription(`**Status atual:** \`Plano Cria (Grátis)\`\nClique nos botões abaixo para gerenciar os setores.\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n📋 **Gestão da Rapaziada**\nRecrutamento, Ponto, Metas de Farm e RH.\n\n🔫 **Arsenal & Baú** 💎\n\`[REQUER VIP]\` Auditoria de estoque e caixa 2.\n\n⚖️ **Tribunal do Crime**\nSistema de multas, cobranças, strikes e XP.`)
+            .setFooter({ text: `KODA STUDIOS | #Tropa • ${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}` });
 
-        // 3. CRIAÇÃO DOS BOTÕES
+        // CRIANDO OS BOTÕES (Estilo o "Ver opções")
         const rowModulos = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId('painel_rh')
                 .setLabel('Gestão e RH')
                 .setEmoji('📋')
-                .setStyle(ButtonStyle.Primary), // Azul
+                .setStyle(ButtonStyle.Secondary), // Secondary deixa o botão cinza chique igual da print
                 
             new ButtonBuilder()
                 .setCustomId('painel_arsenal')
                 .setLabel('Arsenal (VIP)')
                 .setEmoji('🔫')
-                .setStyle(ButtonStyle.Secondary), // Cinza (estilo o botão "Ver opções" da sua print)
+                .setStyle(ButtonStyle.Secondary),
                 
             new ButtonBuilder()
                 .setCustomId('painel_tribunal')
                 .setLabel('Tribunal')
                 .setEmoji('⚖️')
-                .setStyle(ButtonStyle.Danger) // Vermelho
+                .setStyle(ButtonStyle.Secondary) 
         );
 
         const rowConta = new ActionRowBuilder().addComponents(
@@ -49,11 +44,10 @@ module.exports = {
                 .setCustomId('painel_ativar_key')
                 .setLabel('Resgatar Chave VIP')
                 .setEmoji('🔑')
-                .setStyle(ButtonStyle.Success) // Verde
+                .setStyle(ButtonStyle.Success)
         );
 
-        // 4. ENVIO DA RESPOSTA
-        // Como usamos deferReply lá em cima, agora usamos editReply para entregar a mensagem pronta
+        // Enviando a mensagem editada
         await interaction.editReply({
             embeds: [painelEmbed],
             components: [rowModulos, rowConta]
