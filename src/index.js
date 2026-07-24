@@ -10,12 +10,12 @@ const client = new Client({
     ]
 });
 
-// Collections essenciais
+// Collections para o nosso novo sistema inteligente
 client.commands = new Collection();
 client.buttons = new Collection(); 
+client.modals = new Collection(); 
 
-// Chama o nosso núcleo inteligente
+// Chama o núcleo que carrega tudo sozinho
 coreLoader(client);
 
-// Liga o bot
 client.login(process.env.DISCORD_TOKEN);
