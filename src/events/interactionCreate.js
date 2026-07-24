@@ -13,7 +13,7 @@ module.exports = {
             else if (interaction.isButton()) {
                 let { customId } = interaction;
                 
-                // Truque pra paginação
+                // Trativa de paginação
                 if (customId.startsWith('painel_page_')) customId = 'painel_page';
                 
                 const button = client.buttons.get(customId);
@@ -23,8 +23,9 @@ module.exports = {
                     await interaction.deferUpdate().catch(() => {});
                 }
             }
-// 3. SELECT MENUS (BLINDADO)
-            else if (interaction.isAnySelectMenu() || interaction.isChannelSelectMenu() || interaction.isRoleSelectMenu() || interaction.isStringSelectMenu()) {
+
+            // 3. SELECT MENUS (Captura String, Channel, Role, User, Mentionable)
+            else if (interaction.isAnySelectMenu()) {
                 const select = client.selects.get(interaction.customId);
                 if (select) {
                     await select.execute(interaction, client);
@@ -43,8 +44,8 @@ module.exports = {
         } catch (error) {
             console.error('[ERRO NA INTERAÇÃO]:', error);
             
-            // Tratamento anti-vácuo: se der erro na engrenagem, avisa o patrão
-            const errorMessage = { content: '❌ Deu BO interno no bot. Tenta de novo ou chama o suporte.', ephemeral: true };
+            // Tratamento anti-vácuo
+            const errorMessage = { content: '❌ Deu BO interno no bot. Tenta de novo ou chama o suporte.', flags: 64 };
             if (interaction.deferred || interaction.replied) {
                 await interaction.followUp(errorMessage).catch(() => {});
             } else {

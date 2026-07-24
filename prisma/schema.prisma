@@ -8,18 +8,22 @@ datasource db {
 }
 
 model Faccao {
-  guildId           String         @id
-  nomeFac           String
-  isPremium         Boolean        @default(false)
-  premiumVenceEm    DateTime?
-  canalDiretoria    String?        // Canal restrito onde chegam as fichas
-  cargoMembro       String?        // Cargo que o bot vai dar pra quem for aprovado
-  membros           Membro[]
+  guildId         String    @id
+  nomeFac         String?
+  isPremium       Boolean   @default(false)
+  premiumVenceEm  DateTime?
+  membros         Membro[]  // Relacionamento existente
+
+  // Colunas do Setup de RH
+  canalDiretoria  String?
+  cargoMembro     String?
+  cargoRecrutador String?
+
+  // Colunas de Customização da Vitrine Pública
   vitrineTitulo   String?
   vitrineDesc     String?
   vitrineBanner   String?
   vitrineRodape   String?
-  cargoRecrutador String?
 }
 
 model Membro {
