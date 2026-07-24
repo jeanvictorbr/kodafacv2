@@ -12,7 +12,8 @@ model Faccao {
   nomeFac           String
   isPremium         Boolean        @default(false)
   premiumVenceEm    DateTime?
-  canalRecrutamento String?        // Adicionamos a coluna para o canal da Diretoria!
+  canalDiretoria    String?        // Canal restrito onde chegam as fichas
+  cargoMembro       String?        // Cargo que o bot vai dar pra quem for aprovado
   membros           Membro[]
 }
 
