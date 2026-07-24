@@ -6,18 +6,16 @@ const coreLoader = require('./handlers/loader');
 // ==========================================
 // 🧠 INTELIGÊNCIA ARTIFICIAL DO BANCO DE DADOS
 // ==========================================
-console.log('[SISTEMA] Verificando estrutura do Banco de Dados...');
 try {
-    // Verifica se a variável do banco existe antes de tentar o push
     if (process.env.DATABASE_URL) {
-        // Comando puro e direto, forçando o uso do .env
-        execSync('npx prisma db push --accept-data-loss', { stdio: 'inherit', env: process.env });
+        // Passamos a URL diretamente no comando usando a flag --url
+        execSync(`npx prisma db push --accept-data-loss --url="${process.env.DATABASE_URL}"`, { stdio: 'inherit', env: process.env });
         console.log('[BANCO DE DADOS] Estrutura 100% sincronizada com sucesso!');
     } else {
         console.log('[AVISO] DATABASE_URL não encontrada. Pulando sincronização.');
     }
 } catch (error) {
-    console.error('[ERRO DO PRISMA] Não foi possível sincronizar as tabelas. Verifique a URL do Supabase/Neon:', error.message);
+    console.error('[ERRO DO PRISMA] Não foi possível sincronizar as tabelas:', error.message);
 }
 
 // ==========================================
