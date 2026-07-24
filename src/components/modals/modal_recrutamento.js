@@ -1,47 +1,45 @@
 const { ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
-const prisma = require('../../database/prisma'); // Conexão com o seu banco de dados
+const prisma = require('../../database/prisma');
 
 module.exports = {
-    // Esse ID tem que ser EXATAMENTE igual ao que abriu o formulário
-    customId: 'modal_recrutamento', 
+    customId: 'modal_recrutamento',
     
     async execute(interaction) {
-        // 1. Avisa pro Discord que estamos processando (pra não dar aquele erro "Interação Falhou")
         await interaction.deferReply({ ephemeral: true });
 
-        // 2. Captura o que o cara digitou nos campos do Modal
         const nomeRp = interaction.fields.getTextInputValue('nome_rp');
         const passaporte = interaction.fields.getTextInputValue('passaporte');
         const motivo = interaction.fields.getTextInputValue('motivo');
 
-        // 3. Salva a Ficha no Banco de Dados (Prisma V7)
+        // 1. Busca a configuração da Facção no banco para achar o canal da Diretoria
+        const faccaoConfig = await prisma.faccao.findUnique({
+            where: { guildId: interaction.guildId }
+        });
+
+        // Se o Dono não configurou o canal no /painel ainda...
+        if (!faccaoConfig || !faccaoConfig.canalRecrutamento) {
+            return interaction.editReply('❌ O canal da Diretoria ainda não foi configurado pelo dono da Facção no `/painel`!');
+        }
+
+        // 2. Salva a ficha associando ao Servidor (guildId)
         const recrutamento = await prisma.recrutamento.create({
             data: {
+                guildId: interaction.guildId,
                 userId: interaction.user.id,
                 nomeRp: nomeRp,
                 passaporte: passaporte,
             }
         });
 
-        // 4. Dá o feedback pro cara que preencheu (visível só pra ele)
         await interaction.editReply({ 
-            content: '✅ **Ficha enviada com sucesso!** Nossa diretoria já está com seus dados. Aguarde na sala de espera.' 
+            content: '✅ **Ficha enviada com sucesso!** A diretoria já está com seus dados. Aguarde contato.' 
         });
 
-        // ==========================================
-        // 🏢 A MESA DA DIRETORIA (SALA DA STAFF)
-        // ==========================================
-        
-        // Puxa o ID do canal da diretoria do seu .env
-        const canalStaffId = process.env.CANAL_DIRETORIA; 
-        const canalStaff = interaction.guild.channels.cache.get(canalStaffId);
+        // 3. Puxa o canal que está salvo no banco
+        const canalStaff = interaction.guild.channels.cache.get(faccaoConfig.canalRecrutamento);
+        if (!canalStaff) return; // Canal pode ter sido deletado
 
-        // Se o dono da facção esqueceu de por o ID no .env, a gente avisa no log
-        if (!canalStaff) {
-            return console.log('[ERRO] CANAL_DIRETORIA não configurado no .env! A ficha foi pro banco, mas não foi enviada no chat.');
-        }
-
-        // 5. O Design Clean: Texto formatado no padrão Markdown (Nada de embed poluído!)
+        // 4. Formatação Clean em Texto (Sem Embeds!)
         const mensagemStaff = `
 🟢 **NOVA APLICAÇÃO DE RECRUTAMENTO** 🟢
 
@@ -53,10 +51,9 @@ module.exports = {
 > ${motivo}
 `;
 
-        // 6. O Menu interativo para o Recrutador (Select Menu)
+        // 5. O Menu Select da Diretoria
         const menuRecrutador = new ActionRowBuilder().addComponents(
             new StringSelectMenuBuilder()
-                // A gente injeta o ID do banco no customId pra saber qual ficha estamos avaliando
                 .setCustomId(`staff_action_${recrutamento.id}`) 
                 .setPlaceholder('⚙️ Gerenciar Ficha do Candidato')
                 .addOptions([
@@ -66,7 +63,7 @@ module.exports = {
                 ])
         );
 
-        // 7. Envia o card na sala privada da Staff!
+        // Envia pra mesa da diretoria!
         await canalStaff.send({
             content: mensagemStaff,
             components: [menuRecrutador]

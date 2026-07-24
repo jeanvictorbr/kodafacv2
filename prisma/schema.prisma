@@ -8,11 +8,12 @@ datasource db {
 }
 
 model Faccao {
-  guildId        String    @id
-  nomeFac        String
-  isPremium      Boolean   @default(false)
-  premiumVenceEm DateTime?
-  membros        Membro[]
+  guildId           String         @id
+  nomeFac           String
+  isPremium         Boolean        @default(false)
+  premiumVenceEm    DateTime?
+  canalRecrutamento String?        // Adicionamos a coluna para o canal da Diretoria!
+  membros           Membro[]
 }
 
 model Membro {
@@ -33,10 +34,11 @@ model ChaveVIP {
 
 model Recrutamento {
   id           String   @id @default(uuid())
-  userId       String   // ID do Discord do candidato
+  guildId      String   // Para saber de qual servidor é a ficha
+  userId       String   
   nomeRp       String
   passaporte   String
-  status       String   @default("PENDENTE") // PENDENTE, EM_TESTE, APROVADO, REPROVADO
-  recrutadorId String?  // ID do Discord de quem assumiu o recrutamento
+  status       String   @default("PENDENTE") 
+  recrutadorId String?  
   criadoEm     DateTime @default(now())
 }
