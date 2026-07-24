@@ -19,6 +19,7 @@ model Faccao {
   vitrineDesc     String?
   vitrineBanner   String?
   vitrineRodape   String?
+  cargoRecrutador String?
 }
 
 model Membro {

@@ -3,12 +3,10 @@ const prisma = require('../../database/prisma');
 module.exports = {
     customId: 'painel_rh_recrutamento',
     async execute(interaction) {
-        // Puxando configs da facção no banco
         let faccao = await prisma.faccao.findUnique({
             where: { guildId: interaction.guildId }
         });
 
-        // Se a facção não existir no banco, cria o registro inicial
         if (!faccao) {
             faccao = await prisma.faccao.create({
                 data: { 
@@ -21,72 +19,80 @@ module.exports = {
         // --- VARIÁVEIS ESTRUTURAIS ---
         const canalDiretoria = faccao.canalDiretoria ? `<#${faccao.canalDiretoria}>` : '\`Não configurado\`';
         const cargoMembro = faccao.cargoMembro ? `<@&${faccao.cargoMembro}>` : '\`Não configurado\`';
-        const isSetupCompleto = faccao.canalDiretoria && faccao.cargoMembro;
+        const cargoRecrutador = faccao.cargoRecrutador ? `<@&${faccao.cargoRecrutador}>` : '\`Não configurado\`';
+        
+        // Agora o botão só libera se o canal, o cargo de membro E o de recrutador estiverem setados
+        const isSetupCompleto = faccao.canalDiretoria && faccao.cargoMembro && faccao.cargoRecrutador;
 
-        // --- VARIÁVEIS VISUAIS (Com fallbacks nativos/free) ---
+        // --- VARIÁVEIS VISUAIS ---
         const vTitulo = faccao.vitrineTitulo || '🪖 Recrutamento Aberto';
-        const vDesc = faccao.vitrineDesc || 'Junte-se à nossa facção. Preencha o formulário e aguarde a avaliação da diretoria.';
+        const vDesc = faccao.vitrineDesc || 'Junte-se à nossa facção. Preencha o formulário e aguarde a avaliação.';
         const vBanner = faccao.vitrineBanner || '\`Padrão do Sistema\`';
         const vRodape = faccao.vitrineRodape || 'Sistema de Recrutamento';
 
-        // Montando o payload JSON raiz no estilo App
         const payload = {
             flags: 32768 | 64, // Ephemeral + IsComponentsV2
             components: [
                 {
                     type: 17, // Container
-                    accent_color: 0x1F8B4C, // Verde Tropa (Gestão)
+                    accent_color: 0x1F8B4C, // Verde Tropa
                     components: [
                         { 
-                            type: 10, // Texto Cabeçalho
-                            content: "# 🪖 Recrutamento | Hub Central\nVisão, chefe! Aqui você gerencia a estrutura e a aparência da sua vitrine de recrutamento." 
+                            type: 10,
+                            content: "# 🪖 Recrutamento | Hub Central\nVisão, chefe! Aqui você gerencia a estrutura e a aparência da sua vitrine." 
                         },
-                        { type: 14, divider: true, spacing: 1 }, // Linha divisória
+                        { type: 14, divider: true, spacing: 1 },
                         
-                        // ----------------------------------------------------
-                        // SEÇÃO 1: ESTRUTURA INTERNA
-                        // ----------------------------------------------------
+                        // SEÇÃO 1: ESTRUTURA
                         { 
                             type: 10, 
-                            content: `**1️⃣ Estrutura Interna**\nDefina onde as fichas vão cair e qual cargo o aprovado recebe.\n\n🏛️ **Sala da Diretoria:** ${canalDiretoria}\n🎖️ **Cargo de Membro:** ${cargoMembro}` 
-                        },
-                        {
-                            type: 1, // Action Row
-                            components: [
-                                {
-                                    type: 6, // Channel Select Menu (TIPO 6 = CANAL)
-                                    custom_id: "config_canal_diretoria",
-                                    placeholder: "Selecionar Sala da Diretoria",
-                                    channel_types: [0] // 0 = GUILD_TEXT
-                                }
-                            ]
-                        },
-                        {
-                            type: 1, // Action Row
-                            components: [
-                                {
-                                    type: 8, // Role Select Menu (TIPO 8 = CARGO)
-                                    custom_id: "config_cargo_membro",
-                                    placeholder: "Selecionar Cargo de Membro"
-                                }
-                            ]
-                        },
-                        
-                        { type: 14, divider: true, spacing: 1 }, // Linha divisória
-                        
-                        // ----------------------------------------------------
-                        // SEÇÃO 2: VISUAL DA VITRINE
-                        // ----------------------------------------------------
-                        { 
-                            type: 10, 
-                            content: `**2️⃣ Visual da Vitrine Pública**\nPersonalize o que os moradores vão ver no canal público.\n\n**Título:** ${vTitulo}\n**Descrição:** ${vDesc}\n**Banner URL:** ${vBanner}\n**Rodapé:** ${vRodape}` 
+                            content: `**1️⃣ Estrutura Interna**\n🏛️ **Sala da Diretoria:** ${canalDiretoria}\n🎖️ **Cargo de Membro:** ${cargoMembro}\n🗣️ **Cargo Recrutador:** ${cargoRecrutador}` 
                         },
                         {
                             type: 1,
                             components: [
                                 {
-                                    type: 2, // Botão
-                                    style: 2, // Secondary (Cinza)
+                                    type: 8, // TIPO 8 = CANAL (CORRIGIDO)
+                                    custom_id: "config_canal_diretoria",
+                                    placeholder: "Selecionar Sala da Diretoria",
+                                    channel_types: [0] // GUILD_TEXT
+                                }
+                            ]
+                        },
+                        {
+                            type: 1,
+                            components: [
+                                {
+                                    type: 6, // TIPO 6 = CARGO (CORRIGIDO)
+                                    custom_id: "config_cargo_membro",
+                                    placeholder: "Selecionar Cargo de Membro"
+                                }
+                            ]
+                        },
+                        {
+                            type: 1,
+                            components: [
+                                {
+                                    type: 6, // TIPO 6 = CARGO
+                                    custom_id: "config_cargo_recrutador",
+                                    placeholder: "Selecionar Cargo de Recrutador"
+                                }
+                            ]
+                        },
+                        
+                        { type: 14, divider: true, spacing: 1 },
+                        
+                        // SEÇÃO 2: VISUAL
+                        { 
+                            type: 10, 
+                            content: `**2️⃣ Visual da Vitrine Pública**\n**Título:** ${vTitulo}\n**Descrição:** ${vDesc}\n**Banner URL:** ${vBanner}\n**Rodapé:** ${vRodape}` 
+                        },
+                        {
+                            type: 1,
+                            components: [
+                                {
+                                    type: 2,
+                                    style: 2,
                                     label: "Personalizar Vitrine",
                                     custom_id: "btn_config_vitrine",
                                     emoji: { name: "🎨" }
@@ -94,25 +100,23 @@ module.exports = {
                             ]
                         },
 
-                        { type: 14, divider: true, spacing: 1 }, // Linha divisória
+                        { type: 14, divider: true, spacing: 1 },
                         
-                        // ----------------------------------------------------
-                        // SEÇÃO 3: AÇÕES FINAIS
-                        // ----------------------------------------------------
+                        // SEÇÃO 3: AÇÕES
                         {
                             type: 1, 
                             components: [
                                 { 
                                     type: 2, 
-                                    style: 3, // Success (Verde)
+                                    style: 3,
                                     label: "Spawnar Vitrine", 
-                                    custom_id: "select_canal_recrutamento", // Abre menu pra escolher onde spawnar
+                                    custom_id: "select_canal_recrutamento", 
                                     emoji: { name: "📢" }, 
-                                    disabled: !isSetupCompleto // Trava se não tiver configurado a sala e o cargo
+                                    disabled: !isSetupCompleto 
                                 },
                                 { 
                                     type: 2, 
-                                    style: 4, // Danger (Vermelho)
+                                    style: 4,
                                     label: "⬅️ Voltar", 
                                     custom_id: "painel_rh" 
                                 }
@@ -123,7 +127,6 @@ module.exports = {
             ]
         };
 
-        // Injeta o payload bruto e liso
         await interaction.update(payload);
     }
 }
