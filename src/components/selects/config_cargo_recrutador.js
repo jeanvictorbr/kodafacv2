@@ -3,8 +3,6 @@ const prisma = require('../../database/prisma');
 module.exports = {
     customId: 'config_cargo_recrutador',
     async execute(interaction) {
-        await interaction.deferUpdate();
-
         const cargoId = interaction.values[0];
 
         await prisma.faccao.update({
@@ -12,7 +10,7 @@ module.exports = {
             data: { cargoRecrutador: cargoId }
         });
 
-        const hubRecrutamento = require('../buttons/painel_rh_recrutamento');
-        await hubRecrutamento.execute(interaction);
+        const hub = require('../buttons/painel_rh_recrutamento');
+        await hub.execute(interaction);
     }
 }

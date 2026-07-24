@@ -23,14 +23,13 @@ module.exports = {
                     await interaction.deferUpdate().catch(() => {});
                 }
             }
-
-            // 3. SELECT MENUS (AQUI ESTAVA O FURO!)
-            else if (interaction.isAnySelectMenu()) {
-                // Presumindo que no seu loader você salve os selects na collection client.selects
+// 3. SELECT MENUS (BLINDADO)
+            else if (interaction.isAnySelectMenu() || interaction.isChannelSelectMenu() || interaction.isRoleSelectMenu() || interaction.isStringSelectMenu()) {
                 const select = client.selects.get(interaction.customId);
                 if (select) {
                     await select.execute(interaction, client);
                 } else {
+                    console.log(`[AVISO] Select Menu não encontrado: ${interaction.customId}`);
                     await interaction.deferUpdate().catch(() => {});
                 }
             }
