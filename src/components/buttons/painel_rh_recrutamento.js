@@ -1,46 +1,68 @@
-const { ActionRowBuilder, ChannelSelectMenuBuilder, ChannelType, ButtonBuilder, ButtonStyle, MessageFlags } = require('discord.js');
-const prisma = require('../../database/prisma');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, ChannelType, RoleSelectMenuBuilder } = require('discord.js');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
 module.exports = {
     customId: 'painel_rh_recrutamento',
     async execute(interaction) {
-        const faccao = await prisma.faccao.findUnique({ where: { guildId: interaction.guildId } });
-        
-        const selectDiretoria = new ActionRowBuilder().addComponents(
+        // Puxar configs da facção no banco de dados
+        let faccao = await prisma.faccao.findUnique({
+            where: { guildId: interaction.guildId }
+        });
+
+        // Se não existir, cria o registro inicial
+        if (!faccao) {
+            faccao = await prisma.faccao.create({
+                data: { guildId: interaction.guildId }
+            });
+        }
+
+        const canalDiretoria = faccao.canalDiretoria ? `<#${faccao.canalDiretoria}>` : '`Não configurado`';
+        const cargoMembro = faccao.cargoMembro ? `<@&${faccao.cargoMembro}>` : '`Não configurado`';
+
+        const content = `
+# 🪖 Recrutamento | Setup
+> Visão! Aqui você monta a estrutura pra recrutar os morador.
+
+**Status do Setup:**
+* 🏛️ **Sala da Diretoria:** ${canalDiretoria}
+* 🎖️ **Cargo de Membro:** ${cargoMembro}
+
+*Para a engrenagem girar e você poder spawnar a vitrine pública, defina a Sala da Diretoria (onde caem as fichas) e o Cargo de Membro (dado aos aprovados).*
+        `.trim();
+
+        const rowCanais = new ActionRowBuilder().addComponents(
             new ChannelSelectMenuBuilder()
                 .setCustomId('config_canal_diretoria')
-                .setPlaceholder('📍 Setar Canal da Diretoria (Onde chegam as fichas)')
-                .addChannelTypes(ChannelType.GuildText)
+                .setPlaceholder('Selecione a Sala da Diretoria')
+                .setChannelTypes(ChannelType.GuildText)
         );
 
-        const rowAcoes = new ActionRowBuilder().addComponents(
+        const rowCargos = new ActionRowBuilder().addComponents(
+            new RoleSelectMenuBuilder()
+                .setCustomId('config_cargo_membro')
+                .setPlaceholder('Selecione o Cargo de Membro')
+        );
+
+        const rowBotoes = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
-                .setCustomId('enviar_vitrine_recrutamento')
-                .setLabel('Enviar Vitrine Estática (Pública)')
-                .setEmoji('🖼️')
-                .setStyle(ButtonStyle.Success),
+                .setCustomId('select_canal_recrutamento') // Abre um modal/menu para enviar a vitrine
+                .setLabel('Spawnar Vitrine Pública')
+                .setEmoji('📢')
+                .setStyle(ButtonStyle.Primary)
+                // O botão só libera se o setup básico estiver feito
+                .setDisabled(!faccao.canalDiretoria || !faccao.cargoMembro), 
             new ButtonBuilder()
                 .setCustomId('painel_rh')
                 .setLabel('Voltar')
-                .setStyle(ButtonStyle.Secondary)
+                .setEmoji('⬅️')
+                .setStyle(ButtonStyle.Danger)
         );
 
-        let statusTexto = `## 📋 CONFIGURAÇÃO: RECRUTAMENTO\nConfigure a engrenagem do seu recrutamento.\n\n**Status Atual:**`;
-        
-        statusTexto += faccao?.canalDiretoria 
-            ? `\n🟢 **Sala da Diretoria:** <#${faccao.canalDiretoria}>` 
-            : `\n🔴 **Sala da Diretoria:** Não configurada.`;
-
         await interaction.update({
-            flags: MessageFlags.IsComponentsV2,
-            components: [
-                {
-                    type: 10,
-                    content: statusTexto
-                },
-                selectDiretoria,
-                rowAcoes
-            ]
+            content: content,
+            embeds: [], // ZERO EMBEDS STRICT
+            components: [rowCanais, rowCargos, rowBotoes]
         });
     }
-};
+}
