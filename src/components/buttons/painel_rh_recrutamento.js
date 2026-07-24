@@ -8,9 +8,13 @@ module.exports = {
             where: { guildId: interaction.guildId }
         });
 
+        // Se a facção não existir no banco, cria o registro inicial
         if (!faccao) {
             faccao = await prisma.faccao.create({
-                data: { guildId: interaction.guildId }
+                data: { 
+                    guildId: interaction.guildId,
+                    nomeFac: interaction.guild.name // Correção: Passando o nome obrigatório
+                }
             });
         }
 
