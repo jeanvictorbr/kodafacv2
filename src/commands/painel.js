@@ -22,7 +22,7 @@ module.exports = {
                         {
                             type: 12, // Media Gallery para o Banner no topo
                             items: [
-                                { media: { url: "https://i.pinimg.com/originals/3b/8a/d2/3b8ad2c7b1be2ce2433db9b897858bf4.gif" } }
+                                { media: { url: "https://i.imgur.com/Mq0POnA.gif" } }
                             ]
                         },
                         {
