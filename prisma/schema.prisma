@@ -1,0 +1,42 @@
+// O gerador do Client em JS
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Conexão com o PostgreSQL
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Tabela das Guilds (O Cadastro das Facções)
+model Faccao {
+  guildId        String    @id
+  nomeFac        String
+  isPremium      Boolean   @default(false)
+  premiumVenceEm DateTime?
+  
+  // Uma facção tem vários membros (Relação)
+  membros        Membro[]
+}
+
+// Tabela dos Membros (Crias)
+model Membro {
+  userId        String
+  faccaoId      String
+  xpFidelidade  Int      @default(0)
+  advertencias  Int      @default(0)
+  
+  // Conecta o membro à facção. Se a facção for deletada, os membros somem do banco (Cascade)
+  faccao        Faccao   @relation(fields: [faccaoId], references: [guildId], onDelete: Cascade)
+
+  // Chave primária composta: Um usuário só pode ter um perfil por facção
+  @@id([userId, faccaoId]) 
+}
+
+// Tabela das Chaves VIP (Pra vender no automático)
+model ChaveVIP {
+  keyCode String  @id
+  dias    Int
+  usada   Boolean @default(false)
+}
