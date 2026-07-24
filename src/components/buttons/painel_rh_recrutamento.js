@@ -1,7 +1,5 @@
-// Puxando a conexão central que já está configurada com os adapters do Prisma v7
-const prisma = require('../../database/prisma');
-const prisma = new PrismaClient();
-
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, ChannelType, RoleSelectMenuBuilder } = require('discord.js');
+const prisma = require('../../database/prisma'); // Puxa a conexão central já instanciada
 module.exports = {
     customId: 'painel_rh_recrutamento',
     async execute(interaction) {
