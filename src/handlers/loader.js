@@ -50,7 +50,18 @@ module.exports = async (client) => {
         }
         console.log(`[CARREGADO] ${modalFiles.length} Modais.`);
     }
+const fs = require('fs');
 
+// Exemplo de como deve ficar a parte que carrega os Select Menus no seu loader:
+const selectFiles = fs.readdirSync('./src/components/selects').filter(file => file.endsWith('.js'));
+
+for (const file of selectFiles) {
+    const select = require(`../components/selects/${file}`);
+    // Salva na memória do bot usando o customId definido no arquivo
+    if (select.customId) {
+        client.selects.set(select.customId, select);
+    }
+}
     // 5. REGISTRAR NA API
     const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
     try {

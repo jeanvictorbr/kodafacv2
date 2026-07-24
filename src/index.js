@@ -37,13 +37,14 @@ const client = new Client({
     ]
 });
 
-// Collections
+// Onde você tem as suas collections atuais:
 client.commands = new Collection();
-client.buttons = new Collection(); 
-client.modals = new Collection(); 
-
+client.buttons = new Collection();
+client.modals = new Collection();
 // Carrega o núcleo
 coreLoader(client);
+// 🟢 ADICIONE ESTA LINHA AQUI:
+client.selects = new Collection();
 
 // Liga a máquina usando a variável que garantimos que existe
 client.login(token).then(() => {
