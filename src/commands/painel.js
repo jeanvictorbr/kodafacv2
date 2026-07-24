@@ -6,65 +6,104 @@ module.exports = {
         .setDescription('Abre o QG do Patrão usando a nova tecnologia V2 Components.'),
 
     async execute(interaction) {
-        // 1. A MÁGICA DA V2: A flag 32768 é o IS_COMPONENTS_V2 (1 << 15)
-        // Somamos com 64 (Ephemeral) para a mensagem ser apenas para o Patrão.
+        // Flag 32768 (IS_COMPONENTS_V2) + 64 (Ephemeral)
         const v2Flags = 32768 | 64;
 
-        // 2. CONSTRUINDO O JSON DA VITRINE NATIVA
+        // Pegando a data atual formatada pro rodapé
+        const dataAtual = new Date().toLocaleDateString('pt-BR');
+
         const rawPayload = {
             flags: v2Flags,
-            // Na V2 não existe mais "embeds" ou "content", tudo é Componente
             components: [
                 {
                     type: 17, // Container Component
-                    accent_color: 0xFF0000, // A linha lateral Vermelha (KodaFac)
+                    accent_color: 0xFF0000, 
                     components: [
                         {
-                            type: 12, // Media Gallery para o Banner no topo
+                            type: 12, // Media Gallery (Banner)
                             items: [
                                 { media: { url: "https://i.imgur.com/Mq0POnA.gif" } }
                             ]
                         },
                         {
-                            type: 10, // Text Display (Onde vai o texto)
+                            type: 10, // Text Display (Título)
                             content: "# 💼 QG DO PATRÃO | Central de Gestão\nVisão, chefe! O que vamos adiantar hoje? Escolha a fita aí embaixo."
                         },
                         {
-                            type: 14, // Separator (Cria a divisão suave nativa do Discord)
+                            type: 14, // Separator
                             divider: true,
                             spacing: 1
                         },
                         {
-                            type: 10, // Outro Text Display para os módulos
-                            content: "**Status atual:** `Plano Cria (Grátis)`\n\n📋 **Gestão da Rapaziada**\nRecrutamento, Ponto, Metas de Farm e RH.\n\n🔫 **Arsenal & Baú** 💎\n`[REQUER VIP]` Auditoria de estoque e caixa 2.\n\n⚖️ **Tribunal do Crime**\nSistema de multas, cobranças, strikes e XP."
+                            type: 10, // Status atual sozinho em cima
+                            content: "**Status atual:** `Plano Cria (Grátis)`"
                         },
+                        
+                        // --- INÍCIO DOS MÓDULOS ALINHADOS (SECTION) ---
                         {
-                            type: 1, // Action Row DENTRO do Container
+                            type: 9, // Section Component (Texto na esquerda, Botão na direita)
                             components: [
-                                { type: 2, style: 2, label: "Gestão e RH", custom_id: "painel_rh", emoji: { name: "📋" } },
-                                { type: 2, style: 2, label: "Arsenal (VIP)", custom_id: "painel_arsenal", emoji: { name: "🔫" } },
-                                { type: 2, style: 2, label: "Tribunal", custom_id: "painel_tribunal", emoji: { name: "⚖️" } }
-                            ]
+                                {
+                                    type: 10,
+                                    content: "**📋 Gestão da Rapaziada**\nRecrutamento, Ponto, Metas de Farm e RH."
+                                }
+                            ],
+                            accessory: { 
+                                type: 2, style: 2, label: "Gerenciar", custom_id: "painel_rh" 
+                            }
                         },
                         {
-                            type: 1, // Segunda Action Row com o botão VIP
+                            type: 9, // Section 2
+                            components: [
+                                {
+                                    type: 10,
+                                    content: "**🔫 Arsenal & Baú** 💎\n`[REQUER VIP]` Auditoria de estoque e caixa 2."
+                                }
+                            ],
+                            accessory: { 
+                                type: 2, style: 2, label: "Acessar (VIP)", custom_id: "painel_arsenal" 
+                            }
+                        },
+                        {
+                            type: 9, // Section 3
+                            components: [
+                                {
+                                    type: 10,
+                                    content: "**⚖️ Tribunal do Crime**\nSistema de multas, cobranças, strikes e XP."
+                                }
+                            ],
+                            accessory: { 
+                                type: 2, style: 2, label: "Abrir", custom_id: "painel_tribunal" 
+                            }
+                        },
+                        // --- FIM DOS MÓDULOS ---
+
+                        {
+                            type: 14, // Separator antes do rodapé
+                            divider: true,
+                            spacing: 1
+                        },
+                        {
+                            type: 1, // Action Row (Isolado no fundo só pro botão VIP)
                             components: [
                                 { type: 2, style: 3, label: "Resgatar Chave VIP", custom_id: "painel_ativar_key", emoji: { name: "🔑" } }
                             ]
+                        },
+                        {
+                            type: 10, // Text Display (Rodapé Clean usando subtexto)
+                            content: `-# KODA STUDIOS | #Tropa • ${dataAtual}`
                         }
                     ]
                 }
             ]
         };
 
-        // 3. ENVIANDO DIRETO PARA A API REST DO DISCORD
-        // Usamos o rest.post para evitar que o validador do discord.js bloqueie os tipos novos (17, 10, 14, etc).
         try {
             await interaction.client.rest.post(
                 `/interactions/${interaction.id}/${interaction.token}/callback`,
                 {
                     body: {
-                        type: 4, // 4 significa: Responder à interação imediatamente
+                        type: 4, 
                         data: rawPayload
                     }
                 }
