@@ -1,4 +1,4 @@
-const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js');
+const { LabelBuilder, TextInputBuilder, TextInputStyle, ModalBuilder } = require('discord.js');
 
 module.exports = {
     customId: 'btn_aplicar_fac',

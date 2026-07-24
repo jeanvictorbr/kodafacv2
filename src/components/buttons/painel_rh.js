@@ -1,36 +1,36 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { ActionRowBuilder, ChannelSelectMenuBuilder, ChannelType, ButtonBuilder, ButtonStyle, MessageFlags } = require('discord.js');
 
 module.exports = {
-    // Esse customId tem que estar no botão "Explorar" do Gestão da Rapaziada no seu menu principal
     customId: 'painel_rh',
     async execute(interaction) {
         
-        const row = new ActionRowBuilder().addComponents(
-            new ButtonBuilder()
-                .setCustomId('painel_rh_recrutamento')
-                .setLabel('Recrutamento')
-                .setEmoji('📋')
-                .setStyle(ButtonStyle.Primary),
-            new ButtonBuilder()
-                .setCustomId('painel_rh_ponto')
-                .setLabel('Bater Ponto')
-                .setEmoji('⏱️')
-                .setStyle(ButtonStyle.Primary)
-                .setDisabled(true) // Desabilitado por enquanto
+        // Menu para o Admin escolher o canal
+        const channelSelect = new ActionRowBuilder().addComponents(
+            new ChannelSelectMenuBuilder()
+                .setCustomId('select_canal_recrutamento')
+                .setPlaceholder('📍 Selecione o canal para enviar a Vitrine de Recrutamento')
+                .addChannelTypes(ChannelType.GuildText)
         );
 
-        const rowVoltar = new ActionRowBuilder().addComponents(
+        // Botão de Voltar
+        const btnVoltar = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
-                .setCustomId('painel_page_main') // Ajuste para o ID do seu botão de voltar ao inicio
-                .setLabel('Voltar ao QG')
+                .setCustomId('painel_page_main')
+                .setLabel('Voltar')
                 .setStyle(ButtonStyle.Secondary)
         );
 
-        // Atualiza a mensagem tirando qualquer Embed e deixando o visual Clean de Quebrada
+        // PADRÃO COMPONENTS V2: Usamos 'flags' com IS_COMPONENTS_V2 e 'Text Display' (type: 10) em vez de 'content'
         await interaction.update({
-            content: '## 📋 GESTÃO DA RAPAZIADA\nVisão, chefe! Aqui você gerencia os seus membros.\n\nEscolha qual sistema você quer configurar agora:',
-            embeds: [], 
-            components: [row, rowVoltar]
+            flags: MessageFlags.IsComponentsV2, // Equivalente a 1 << 15 (32768)
+            components: [
+                {
+                    type: 10, // Text Display Component
+                    content: '💼 **PAINEL DE RECURSOS HUMANOS**\n\nGerencie as contratações da sua Facção. Escolha abaixo o canal público onde os moradores poderão aplicar para o recrutamento.'
+                },
+                channelSelect,
+                btnVoltar
+            ]
         });
     }
 };
