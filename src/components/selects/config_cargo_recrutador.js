@@ -1,7 +1,9 @@
 const prisma = require('../../database/prisma');
 
 module.exports = {
+    id: 'config_cargo_recrutador',
     customId: 'config_cargo_recrutador',
+    name: 'config_cargo_recrutador',
     async execute(interaction, client) {
         const cargoId = interaction.values[0];
 
