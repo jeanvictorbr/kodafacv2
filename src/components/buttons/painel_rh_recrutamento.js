@@ -1,14 +1,14 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, ChannelType, RoleSelectMenuBuilder } = require('discord.js');
-const prisma = require('../../database/prisma'); // Puxa a conexão central já instanciada
+const prisma = require('../../database/prisma');
+
 module.exports = {
     customId: 'painel_rh_recrutamento',
     async execute(interaction) {
-        // Puxar configs da facção no banco de dados
+        // Puxando configs da facção
         let faccao = await prisma.faccao.findUnique({
             where: { guildId: interaction.guildId }
         });
 
-        // Se não existir, cria o registro inicial
         if (!faccao) {
             faccao = await prisma.faccao.create({
                 data: { guildId: interaction.guildId }
@@ -18,7 +18,7 @@ module.exports = {
         const canalDiretoria = faccao.canalDiretoria ? `<#${faccao.canalDiretoria}>` : '`Não configurado`';
         const cargoMembro = faccao.cargoMembro ? `<@&${faccao.cargoMembro}>` : '`Não configurado`';
 
-        const content = `
+        const textoMarkdown = `
 # 🪖 Recrutamento | Setup
 > Visão! Aqui você monta a estrutura pra recrutar os morador.
 
@@ -44,11 +44,10 @@ module.exports = {
 
         const rowBotoes = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
-                .setCustomId('select_canal_recrutamento') // Abre um modal/menu para enviar a vitrine
+                .setCustomId('select_canal_recrutamento') 
                 .setLabel('Spawnar Vitrine Pública')
                 .setEmoji('📢')
                 .setStyle(ButtonStyle.Primary)
-                // O botão só libera se o setup básico estiver feito
                 .setDisabled(!faccao.canalDiretoria || !faccao.cargoMembro), 
             new ButtonBuilder()
                 .setCustomId('painel_rh')
@@ -57,10 +56,18 @@ module.exports = {
                 .setStyle(ButtonStyle.Danger)
         );
 
+        // PADRÃO COMPONENTS V2 E TEXT DISPLAY
         await interaction.update({
-            content: content,
-            embeds: [], // ZERO EMBEDS STRICT
-            components: [rowCanais, rowCargos, rowBotoes]
+            flags: 1 << 15, // MessageFlags.IsComponentsV2
+            components: [
+                {
+                    type: 10, // Text Display Component
+                    content: textoMarkdown
+                },
+                rowCanais.toJSON(),
+                rowCargos.toJSON(),
+                rowBotoes.toJSON()
+            ]
         });
     }
 }

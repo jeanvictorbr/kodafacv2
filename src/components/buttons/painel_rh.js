@@ -3,7 +3,7 @@ const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 module.exports = {
     customId: 'painel_rh',
     async execute(interaction) {
-        const content = `
+        const textoMarkdown = `
 # 📋 Gestão da Rapaziada | Recursos Humanos
 > Salve, patrão! Aqui é o QG do RH. Controla quem entra, quem sai e quem trampa na facção.
 
@@ -27,10 +27,16 @@ Selecione abaixo qual fita você quer adiantar agora:
                 .setStyle(ButtonStyle.Danger)
         );
 
+        // PADRÃO COMPONENTS V2 E TEXT DISPLAY
         await interaction.update({
-            content: content,
-            embeds: [], // ZERO EMBEDS STRICT
-            components: [row]
+            flags: 1 << 15, // MessageFlags.IsComponentsV2
+            components: [
+                {
+                    type: 10, // Text Display Component
+                    content: textoMarkdown
+                },
+                row.toJSON() // Convertido para JSON para mesclar com o Type 10
+            ]
         });
     }
 }
