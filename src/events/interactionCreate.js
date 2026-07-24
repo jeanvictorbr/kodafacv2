@@ -2,7 +2,6 @@ module.exports = {
     name: 'interactionCreate',
     once: false,
     async execute(interaction, client) {
-        
         try {
             // 1. SLASH COMMANDS
             if (interaction.isChatInputCommand()) {
@@ -14,19 +13,29 @@ module.exports = {
             else if (interaction.isButton()) {
                 let { customId } = interaction;
                 
-                // Truque pra paginação: se o ID for "painel_page_2", ele corta pra procurar o arquivo "painel_page"
+                // Truque pra paginação
                 if (customId.startsWith('painel_page_')) customId = 'painel_page';
                 
                 const button = client.buttons.get(customId);
                 if (button) {
                     await button.execute(interaction, client);
                 } else {
-                    // Se o botão não existir nos arquivos, só ignora pra não dar erro vermelho
                     await interaction.deferUpdate().catch(() => {});
                 }
             }
 
-            // 3. MODAIS (Formulários)
+            // 3. SELECT MENUS (AQUI ESTAVA O FURO!)
+            else if (interaction.isAnySelectMenu()) {
+                // Presumindo que no seu loader você salve os selects na collection client.selects
+                const select = client.selects.get(interaction.customId);
+                if (select) {
+                    await select.execute(interaction, client);
+                } else {
+                    await interaction.deferUpdate().catch(() => {});
+                }
+            }
+
+            // 4. MODAIS (Formulários)
             else if (interaction.isModalSubmit()) {
                 const modal = client.modals.get(interaction.customId);
                 if (modal) await modal.execute(interaction, client);
@@ -34,6 +43,14 @@ module.exports = {
             
         } catch (error) {
             console.error('[ERRO NA INTERAÇÃO]:', error);
+            
+            // Tratamento anti-vácuo: se der erro na engrenagem, avisa o patrão
+            const errorMessage = { content: '❌ Deu BO interno no bot. Tenta de novo ou chama o suporte.', ephemeral: true };
+            if (interaction.deferred || interaction.replied) {
+                await interaction.followUp(errorMessage).catch(() => {});
+            } else {
+                await interaction.reply(errorMessage).catch(() => {});
+            }
         }
     },
 };

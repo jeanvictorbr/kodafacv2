@@ -3,10 +3,11 @@ const prisma = require('../../database/prisma');
 module.exports = {
     customId: 'config_canal_diretoria',
     async execute(interaction) {
-        // Pega o ID do canal selecionado no dropdown
+        // Segura a API do Discord pra não dar "Não respondeu a tempo"
+        await interaction.deferUpdate();
+
         const canalId = interaction.values[0];
 
-        // Salva no banco de dados
         await prisma.faccao.update({
             where: { guildId: interaction.guildId },
             data: { canalDiretoria: canalId }
