@@ -79,7 +79,7 @@ module.exports = async (client) => {
             // O pulo do gato: Extrai o nome do arquivo sem a extensão
             const fileNameId = file.replace('.js', '');
             
-            // Mapeia todas as chaves possíveis e usa o NOME DO ARQUIVO como backup absoluto
+            // Mapeia todas as cSASDASDhaves possíveis e usa o NOME DO ARQUIVO como backup absoluto
             const identifier = select.customId || select.custom_id || select.id || select.name || fileNameId;
             
             client.selects.set(identifier, select);
