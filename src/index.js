@@ -21,7 +21,7 @@ for (const file of eventFiles) {
     const filePath = path.join(eventsPath, file);
     const event = require(filePath);
     
-    // Se for um evento de "once" (como o ready), roda uma vez. Se não, fica ouvindo sempre.
+    // Se for um evento dess "once" (como o ready), roda uma vez. Se não, fica ouvindo sempre.
     if (event.once) {
         client.once(event.name, (...args) => event.execute(...args, client));
     } else {
