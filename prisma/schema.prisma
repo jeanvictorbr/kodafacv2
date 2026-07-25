@@ -1,50 +1,13 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-model Faccao {
-  guildId         String    @id
-  nomeFac         String?
-  isPremium       Boolean   @default(false)
-  premiumVenceEm  DateTime?
-
-  // Setup RH
-  canalDiretoria  String?
-  cargoMembro     String?
-  cargoRecrutador String?
-
-  // Vitrine
-  vitrineTitulo   String?   @default("🪖 Recrutamento Aberto")
-  vitrineDesc     String?   @default("Preencha o formulário e aguarde a avaliação da Diretoria.")
-  vitrineBanner   String?
-  vitrineRodape   String?   @default("Tropa da Koda - Sistema de Recrutamento")
-
-  membros         Membro[]
-}
-
-model Membro {
-  id          String   @id @default(uuid())
-  guildId     String
-  userId      String
-  nomeRp      String?
-  passaporte  String?
-  cargo       String?
-  createdAt   DateTime @default(now())
-
-  faccao      Faccao   @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
-}
-
-// Sistema Freemium
-model ChaveVip {
-  codigo      String   @id // Ex: KODA-VIP-30D-XYZ123
-  dias        Int      // Quantos dias de VIP a chave dá
-  usada       Boolean  @default(false)
-  resgatadaPor String? // ID de quem resgatou
-  resgatadaEm DateTime?
-  createdAt   DateTime @default(now())
 }
