@@ -22,7 +22,7 @@ try {
 // 🚀 INICIALIZAÇÃO DO BOT
 // ==========================================
 
-// Validação de Segurança para o Token do Discord
+// Validação de Segurançasadd para o Token do Discord
 const token = process.env.DISCORD_TOKEN;
 if (!token) {
     console.error('[ERRO CRÍTICO] O DISCORD_TOKEN não foi encontrado nas variáveis de ambiente da Discloud!');
