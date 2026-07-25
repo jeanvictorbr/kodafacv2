@@ -88,7 +88,7 @@ module.exports = async (client) => {
         console.log(`[CARREGADO] ${selectCount} Selects (Garantidos na Memória).`);
     }
 
-    // 6. REGISTRAR NA API
+    // 6. REGISTRAR NA APIss
     const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
     try {
         if (process.env.GUILD_TEST_ID) {
