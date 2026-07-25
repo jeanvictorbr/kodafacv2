@@ -24,17 +24,21 @@ module.exports = {
                 }
             }
 
-            // 3. SELECT MENUS (Captura String, Channel, Role, User, Mentionable)
+// 3. SELECT MENUS (COM RADAR DE DEBUG)
             else if (interaction.isAnySelectMenu()) {
                 const select = client.selects.get(interaction.customId);
+                
                 if (select) {
                     await select.execute(interaction, client);
                 } else {
-                    console.log(`[AVISO] Select Menu não encontrado: ${interaction.customId}`);
+                    console.log(`\n--- 🚨 ALERTA DE SELECT MENU ---`);
+                    console.log(`O Discord enviou o ID exato: '${interaction.customId}'`);
+                    console.log(`O Bot tem na memória os IDs:`, Array.from(client.selects.keys()));
+                    console.log(`--------------------------------\n`);
+                    
                     await interaction.deferUpdate().catch(() => {});
                 }
             }
-
             // 4. MODAIS (Formulários)
             else if (interaction.isModalSubmit()) {
                 const modal = client.modals.get(interaction.customId);
