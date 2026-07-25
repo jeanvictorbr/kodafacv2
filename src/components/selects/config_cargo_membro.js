@@ -10,7 +10,11 @@ module.exports = {
         await prisma.faccao.upsert({
             where: { guildId: interaction.guildId },
             update: { cargoMembro: cargoId },
-            create: { guildId: interaction.guildId, cargoMembro: cargoId }
+            create: { 
+                guildId: interaction.guildId, 
+                cargoMembro: cargoId,
+                nomeFac: interaction.guild.name // <-- SOLUÇÃO AQUI
+            }
         });
 
         return interaction.reply({
