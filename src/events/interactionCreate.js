@@ -39,7 +39,7 @@ module.exports = {
                     await interaction.deferUpdate().catch(() => {});
                 }
             }
-            // 4. MODAIS (Formulários)
+            // 4. MODAIS (Formulárdsaios)
             else if (interaction.isModalSubmit()) {
                 const modal = client.modals.get(interaction.customId);
                 if (modal) await modal.execute(interaction, client);
