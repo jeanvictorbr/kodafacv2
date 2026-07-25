@@ -24,18 +24,33 @@ module.exports = {
                 }
             }
 
-// 3. SELECT MENUS (COM RADAR DE DEBUG)
+// 3. SELECT MENUS (SISTEMA DE AUTO-CURA / LAZY LOADING)
             else if (interaction.isAnySelectMenu()) {
-                const select = client.selects.get(interaction.customId);
+                let select = client.selects.get(interaction.customId);
                 
+                // ANTI-APAGÃO: Se a memória estiver vazia ([]), força a leitura dos arquivos
+                if (!select) {
+                    const fs = require('fs');
+                    const path = require('path');
+                    const selectsPath = path.join(__dirname, '../components/selects');
+                    
+                    if (fs.existsSync(selectsPath)) {
+                        const selectFiles = fs.readdirSync(selectsPath).filter(file => file.endsWith('.js'));
+                        for (const file of selectFiles) {
+                            const req = require(`../components/selects/${file}`);
+                            const fileNameId = file.replace('.js', '');
+                            const identifier = req.customId || req.custom_id || req.id || req.name || fileNameId;
+                            client.selects.set(identifier, req);
+                        }
+                    }
+                    // Tenta resgatar novamente da memória recuperada
+                    select = client.selects.get(interaction.customId);
+                }
+
                 if (select) {
                     await select.execute(interaction, client);
                 } else {
-                    console.log(`\n--- 🚨 ALERTA DE SELECT MENU ---`);
-                    console.log(`O Discord enviou o ID exato: '${interaction.customId}'`);
-                    console.log(`O Bot tem na memória os IDs:`, Array.from(client.selects.keys()));
-                    console.log(`--------------------------------\n`);
-                    
+                    console.error(`[FALHA CRÍTICA] Select '${interaction.customId}' não existe nos arquivos!`);
                     await interaction.deferUpdate().catch(() => {});
                 }
             }
