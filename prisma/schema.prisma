@@ -1,13 +1,72 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
+// prisma/schema.prisma
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Tabela principal: O QG da Facção (Cada servidor é uma facção)
+model Faction {
+  guildId       String    @id @unique // ID do Servidor no Discord
+  name          String    // Nome da cidade/facção
+  
+  // Sistema VIP
+  isVip         Boolean   @default(false)
+  vipExpiresAt  DateTime? // Data que o VIP acaba
+
+  // Configurações do RH (Salvo aqui para não chumbar no código)
+  rhChannelId   String?   // Canal onde a ficha cai pros líderes
+  rhRoleId      String?   // Cargo de quem pode aprovar/reprovar
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  recruits      Recruit[] // Relação com as fichas de RH
+  // Adicione isso dentro do model Faction:
+
+  // Configurações Técnicas do RH
+  rhApproveChannelId String? // Canal onde a ficha cai pra ser aprovada
+  rhRoleId           String? // Cargo de quem avalia (Recrutador)
+  rhMemberRoleId     String? // Cargo que o cara ganha ao ser aprovado
+  
+  // Customização Visual da Vitrine (Design)
+  vitrineTitle       String  @default("📋 RECRUTAMENTO ABERTO")
+  vitrineDesc        String  @default("A facção está contratando! Clique no botão abaixo para preencher sua ficha e aguarde a avaliação da nossa diretoria.")
+  vitrineBanner      String? // URL de uma imagem (opcional)
+  vitrineFooter      String  @default("Sistema de RH Integrado")
+}
+
+// Tabela de RH: Fichas dos moradores
+model Recruit {
+  id          String   @id @default(uuid())
+  guildId     String   // Pra saber de qual facção é essa ficha
+  userId      String   // ID do Discord do morador
+  
+  // Dados do formulário (Modal)
+  passport    String   // Passaporte na cidade
+  characterName String // Nome do personagem
+  reason      String   // Motivo de querer entrar
+  
+  status      String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  
+  createdAt   DateTime @default(now())
+
+  // Amarrando a ficha à facção
+  faction     Faction  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+}
+
+// Tabela do Sistema Freemium: As chaves VIP geradas
+model VipKey {
+  id        String   @id @default(uuid())
+  key       String   @unique // A chave em si (ex: FVEM-X89S-VIP)
+  used      Boolean  @default(false)
+  usedBy    String?  // ID de quem usou
+  guildId   String?  // ID do servidor onde foi ativada
+  days      Int      @default(30) // Quantos dias de VIP a chave dá
+  
+  createdAt DateTime @default(now())
 }
