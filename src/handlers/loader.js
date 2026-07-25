@@ -37,44 +37,55 @@ module.exports = async (client) => {
     // 3. CARREGAR BOTÕES
     const buttonsPath = path.join(__dirname, '../components/buttons');
     if (fs.existsSync(buttonsPath)) {
+        let btnCount = 0;
         const buttonFiles = fs.readdirSync(buttonsPath).filter(f => f.endsWith('.js'));
         for (const file of buttonFiles) {
             const button = require(`../components/buttons/${file}`);
-            const btnId = button.customId || button.id || button.name;
-            if (btnId) client.buttons.set(btnId, button);
+            const fileNameId = file.replace('.js', '');
+            const btnId = button.customId || button.custom_id || button.id || button.name || fileNameId;
+            if (btnId) {
+                client.buttons.set(btnId, button);
+                btnCount++;
+            }
         }
-        console.log(`[CARREGADO] ${buttonFiles.length} Botões.`);
+        console.log(`[CARREGADO] ${btnCount} Botões na memória.`);
     }
 
     // 4. CARREGAR MODAIS
     const modalsPath = path.join(__dirname, '../components/modals');
     if (fs.existsSync(modalsPath)) {
+        let modalCount = 0;
         const modalFiles = fs.readdirSync(modalsPath).filter(f => f.endsWith('.js'));
         for (const file of modalFiles) {
             const modal = require(`../components/modals/${file}`);
-            const modalId = modal.customId || modal.id || modal.name;
-            if (modalId) client.modals.set(modalId, modal);
+            const fileNameId = file.replace('.js', '');
+            const modalId = modal.customId || modal.custom_id || modal.id || modal.name || fileNameId;
+            if (modalId) {
+                client.modals.set(modalId, modal);
+                modalCount++;
+            }
         }
-        console.log(`[CARREGADO] ${modalFiles.length} Modais.`);
+        console.log(`[CARREGADO] ${modalCount} Modais na memória.`);
     }
 
-    // 5. CARREGAR SELECT MENUS (Blindado contra múltiplas nomenclaturas)
+    // 5. CARREGAR SELECT MENUS (BLINDAGEM SUPREMA)
     const selectsPath = path.join(__dirname, '../components/selects');
     if (fs.existsSync(selectsPath)) {
+        let selectCount = 0;
         const selectFiles = fs.readdirSync(selectsPath).filter(file => file.endsWith('.js'));
         for (const file of selectFiles) {
             const select = require(`../components/selects/${file}`);
             
-            // Força a captura do identificador não importa como foi exportado
-            const identifier = select.customId || select.name || select.id;
+            // O pulo do gato: Extrai o nome do arquivo sem a extensão
+            const fileNameId = file.replace('.js', '');
             
-            if (identifier) {
-                client.selects.set(identifier, select);
-            } else {
-                console.log(`[ERRO NO LOADER] O Select Menu '${file}' não exportou um 'customId' ou 'id' válido.`);
-            }
+            // Mapeia todas as chaves possíveis e usa o NOME DO ARQUIVO como backup absoluto
+            const identifier = select.customId || select.custom_id || select.id || select.name || fileNameId;
+            
+            client.selects.set(identifier, select);
+            selectCount++;
         }
-        console.log(`[CARREGADO] ${selectFiles.length} Selects.`);
+        console.log(`[CARREGADO] ${selectCount} Selects (Garantidos na Memória).`);
     }
 
     // 6. REGISTRAR NA API
