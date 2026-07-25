@@ -1,70 +1,145 @@
 // src/commands/painel.js
 const { SlashCommandBuilder } = require('discord.js');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
 module.exports = {
-    // Registra o comando de barra na API
     data: new SlashCommandBuilder()
         .setName('painel')
         .setDescription('Abre o QG administrativo da sua Facção (Apenas Líderes)'),
 
     async execute(interaction, client) {
         
-        // 1. Verificação de Segurança (Lock na porta do QG)
+        // 1. Verificação de Segurança
         const isGuildOwner = interaction.user.id === interaction.guild.ownerId;
         const isBotDev = interaction.user.id === process.env.DEV_ID;
 
         if (!isGuildOwner && !isBotDev) {
-            // Pra mensagem simples de erro, a gente pode usar o reply padrão do DJS
             return interaction.reply({
                 content: '🚫 **Acesso Negado.** Só o patrão tem a chave desse QG.',
-                flags: 64 // Só ele vê
+                flags: 64
             });
         }
 
-        // 2. A Mágica do Components V2 (JSON Bruto)
-        // Flag 32832 = 32768 (IS_COMPONENTS_V2) + 64 (EPHEMERAL)
-        // Isso obriga o Discord a ignorar "content" e "embeds" e ler a UI que a gente desenhou.
+        // 2. Busca o plano da facção no banco pra mostrar dinamicamente
+        const faction = await prisma.faction.findUnique({
+            where: { guildId: interaction.guild.id }
+        });
+        const isVip = faction?.isVip || false;
+        const planoTexto = isVip ? '`👑 Plano Patrão (VIP)`' : '`Plano Cria (Grátis)`';
+
+        // 3. Montando a Interface V2 com Sections (O Segredo do Layout Modular)
         const rawPayload = {
-            flags: 32832, 
+            flags: 32832, // 32768 (V2) + 64 (Ephemeral)
             components: [
                 {
-                    type: 17, // 17 = Container (A caixa que agrupa tudo)
-                    accent_color: 0x2b2d31, // Cor da bordinha do container (estilo dark mode)
+                    type: 17, // Container que abraça tudo
+                    accent_color: 0xED4245, // Vermelho escuro/Carmesim (A barrinha lateral)
                     components: [
+                        // --- CABEÇALHO E BANNER ---
                         {
-                            type: 10, // 10 = Text Display (O texto do topo em Markdown)
-                            content: `# 🏢 QG DA FACÇÃO: ${interaction.guild.name}\n\n**Status do Sistema:** 🟢 Online\n**Plano Atual:** 🆓 Freemium\n\nNavegue pelos botões abaixo para gerenciar o QG da cidade.`
+                            type: 10, 
+                            // Usamos markdown pra puxar o banner, título e descrição. 
+                            // (Troque o link do imgur pelo banner padrão que você quiser)
+                            content: `![Banner](https://i.imgur.com/kK35Qx8.jpeg)\n# 💼 QG DO PATRÃO | Central de Gestão\nVisão, chefe! O que vamos adiantar hoje? Escolha a fita aí embaixo.\n\n**Status atual:** ${planoTexto}`
                         },
+                        
+                        // --- MÓDULO 1: RH ---
                         {
-                            type: 14, // 14 = Separator (Linha divisória pra deixar o design limpo)
-                            divider: true,
-                            spacing: 2
-                        },
-                        {
-                            type: 1, // 1 = Action Row (A linha que segura os botões)
+                            type: 9, // SECTION: Texto na esquerda, Botão na direita
                             components: [
                                 {
-                                    type: 2, // 2 = Button
-                                    style: 1, // 1 = Primary (Azul)
-                                    label: "Departamento de RH",
-                                    emoji: { name: "📁" },
-                                    custom_id: "menu_rh" // Nosso roteamento cego vai ler isso aqui!
+                                    type: 10,
+                                    content: "**📋 Gestão da Rapaziada**\nRecrutamento, Ponto, Metas de Farm e RH."
+                                }
+                            ],
+                            accessory: {
+                                type: 2, // Botão
+                                style: 2, // Secondary (Cinza)
+                                label: "Explorar",
+                                custom_id: "menu_rh"
+                            }
+                        },
+
+                        // --- MÓDULO 2: ARSENAL E BAÚ ---
+                        {
+                            type: 9, 
+                            components: [
+                                {
+                                    type: 10,
+                                    content: "**🔫 Arsenal & Baú** 💎\n`[REQUER VIP]` Auditoria de estoque e caixa 2."
+                                }
+                            ],
+                            accessory: {
+                                type: 2,
+                                style: 2,
+                                label: "Explorar",
+                                custom_id: "menu_arsenal"
+                            }
+                        },
+
+                        // --- MÓDULO 3: TRIBUNAL DO CRIME ---
+                        {
+                            type: 9, 
+                            components: [
+                                {
+                                    type: 10,
+                                    content: "**⚖️ Tribunal do Crime**\nSistema de multas, cobranças, strikes e XP."
+                                }
+                            ],
+                            accessory: {
+                                type: 2,
+                                style: 2,
+                                label: "Explorar",
+                                custom_id: "menu_tribunal"
+                            }
+                        },
+
+                        // --- PAGINAÇÃO (Action Row com botões de passar página) ---
+                        {
+                            type: 1, 
+                            components: [
+                                {
+                                    type: 2,
+                                    style: 2,
+                                    emoji: { name: "⬅️" },
+                                    custom_id: "page_back",
+                                    disabled: true // Desativado porque tá na página 1
                                 },
                                 {
                                     type: 2,
-                                    style: 2, // 2 = Secondary (Cinza)
-                                    label: "Configurações",
-                                    emoji: { name: "⚙️" },
-                                    custom_id: "menu_config"
+                                    style: 2,
+                                    label: "Página 1/2",
+                                    custom_id: "page_indicator",
+                                    disabled: true // Apenas visual
                                 },
                                 {
                                     type: 2,
-                                    style: 3, // 3 = Success (Verde)
-                                    label: "Ativar Chave VIP",
-                                    emoji: { name: "💎" },
+                                    style: 2,
+                                    emoji: { name: "➡️" },
+                                    custom_id: "page_next"
+                                }
+                            ]
+                        },
+
+                        // --- BOTÃO DE VIP ---
+                        {
+                            type: 1,
+                            components: [
+                                {
+                                    type: 2,
+                                    style: 3, // Success (Verde)
+                                    label: "Resgatar Chave VIP",
+                                    emoji: { name: "🔑" },
                                     custom_id: "menu_vip"
                                 }
                             ]
+                        },
+
+                        // --- RODAPÉ (Pequeno formato de footer usando -#) ---
+                        {
+                            type: 10,
+                            content: `-# KODA STUDIOS | #${interaction.guild.name} • Sistema Integrado`
                         }
                     ]
                 }
@@ -72,14 +147,12 @@ module.exports = {
         };
 
         try {
-            // 3. O Pulo do Gato: Injetando na API REST direto!
-            // Como o Discord.js nativo pode tentar formatar nosso JSON e apagar os types novos (17, 10),
-            // a gente usa o client.rest.post pra responder a interação mandando a estrutura pura pro Discord.
+            // 4. Injetando direto na veia da API
             await client.rest.post(
                 `/interactions/${interaction.id}/${interaction.token}/callback`,
                 {
                     body: {
-                        type: 4, // 4 = ChannelMessageWithSource (A resposta inicial do comando)
+                        type: 4, 
                         data: rawPayload
                     }
                 }
