@@ -1,65 +1,61 @@
 module.exports = {
-    customId: 'painel_rh',
     async execute(interaction) {
-        // Montando o payload JSON bruto no padrão V2 Components
+        // Interface V2 de Atualização para a tela de RH
         const payload = {
-            flags: 32768 | 64, // MessageFlags.IsComponentsV2 (32768) | Ephemeral (64)
+            content: "",
+            flags: 32832,
             components: [
                 {
                     type: 17, // Container
-                    accent_color: 0x0055FF, // Cor do detalhe lateral (Azul Gestão)
                     components: [
-                        { 
-                            type: 10, // Text Display
-                            content: "# 📋 Central de Gestão e RH\n*Controle quem entra, quem sai e quem trampa na facção.*" 
-                        },
-                        { type: 14, divider: true, spacing: 1 }, // Linha divisória
-                        
-                        // Módulo 1: Recrutamento (Section)
                         {
-                            type: 9, // Section Component
-                            components: [{ type: 10, content: "**🪖 Recrutamento e Peneira**\nSetup de diretoria, formulários e aprovações." }],
-                            accessory: { 
-                                type: 2, // Button
-                                style: 2, // Secondary
-                                label: "Explorar", 
-                                custom_id: "painel_rh_recrutamento" 
-                            }
-                        },
-                        
-                        // Módulo 2: Ponto (Section)
-                        {
-                            type: 9, // Section Component
-                            components: [{ type: 10, content: "**⏳ Ponto & Farm**\n*(Em desenvolvimento)*" }],
-                            accessory: { 
-                                type: 2, // Button
-                                style: 2, // Secondary
-                                label: "Explorar", 
-                                custom_id: "painel_rh_ponto",
-                                disabled: true
-                            }
-                        },
-
-                        { type: 14, divider: true, spacing: 1 }, // Linha divisória
-                        
-                        // Botão Voltar
-                        { 
-                            type: 1, // Action Row
+                            type: 9, // Section
                             components: [
-                                { 
-                                    type: 2, // Button
-                                    style: 4, // Danger (Vermelho)
-                                    label: "⬅️ Voltar ao QG", 
-                                    custom_id: "painel_page_1" 
-                                }
-                            ] 
+                                { type: 10, content: "### 📋 GESTÃO DE RH" },
+                                { type: 14 },
+                                { type: 10, content: "Gerencie o recrutamento e o fluxo de membros da sua facção." },
+                                { type: 10, content: "Configure os canais e cargos primeiro para liberar a vitrine pública." }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    type: 1, // ActionRow (Select Menu para configuração)
+                    components: [
+                        {
+                            type: 8, // Role Select Menu
+                            custom_id: "config_cargo_membro",
+                            placeholder: "1️⃣ Selecione o cargo de Membro Base"
+                        }
+                    ]
+                },
+                {
+                    type: 1, // ActionRow (Botões de Ação)
+                    components: [
+                        {
+                            type: 2,
+                            style: 1,
+                            custom_id: "modal_vitrine",
+                            label: "📝 Editar Vitrine"
+                        },
+                        {
+                            type: 2,
+                            style: 3,
+                            custom_id: "spawn_vitrine",
+                            label: "🚀 Lançar Recrutamento"
+                        },
+                        {
+                            type: 2,
+                            style: 4, // Danger (Vermelho)
+                            custom_id: "painel_voltar",
+                            label: "Voltar ao QG"
                         }
                     ]
                 }
             ]
         };
 
-        // Injeta o payload brabíssimo na API do Discord
+        // Usa update() para não criar uma nova mensagem, apenas trocar a interface atual
         await interaction.update(payload);
     }
-}
+};

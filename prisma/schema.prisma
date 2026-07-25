@@ -13,16 +13,16 @@ model Faccao {
   isPremium       Boolean   @default(false)
   premiumVenceEm  DateTime?
 
-  // Setup do RH / Diretoria
+  // Setup RH
   canalDiretoria  String?
   cargoMembro     String?
   cargoRecrutador String?
 
-  // Personalização da Vitrine
+  // Vitrine
   vitrineTitulo   String?   @default("🪖 Recrutamento Aberto")
-  vitrineDesc     String?   @default("Junte-se à nossa facção. Preencha o formulário e aguarde a avaliação da diretoria.")
+  vitrineDesc     String?   @default("Preencha o formulário e aguarde a avaliação da Diretoria.")
   vitrineBanner   String?
-  vitrineRodape   String?   @default("Sistema de Recrutamento")
+  vitrineRodape   String?   @default("Tropa da Koda - Sistema de Recrutamento")
 
   membros         Membro[]
 }
@@ -34,8 +34,17 @@ model Membro {
   nomeRp      String?
   passaporte  String?
   cargo       String?
-  advertencias Int     @default(0)
   createdAt   DateTime @default(now())
-  
+
   faccao      Faccao   @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+}
+
+// Sistema Freemium
+model ChaveVip {
+  codigo      String   @id // Ex: KODA-VIP-30D-XYZ123
+  dias        Int      // Quantos dias de VIP a chave dá
+  usada       Boolean  @default(false)
+  resgatadaPor String? // ID de quem resgatou
+  resgatadaEm DateTime?
+  createdAt   DateTime @default(now())
 }

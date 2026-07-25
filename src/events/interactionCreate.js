@@ -1,75 +1,47 @@
 module.exports = {
     name: 'interactionCreate',
-    once: false,
     async execute(interaction, client) {
-        try {
-            // 1. SLASH COMMANDS
-            if (interaction.isChatInputCommand()) {
-                const command = client.commands.get(interaction.commandName);
-                if (command) await command.execute(interaction, client);
+        // --- 1. Roteamento de Comandos (Slash) ---
+        if (interaction.isChatInputCommand()) {
+            const command = client.commands.get(interaction.commandName);
+            if (!command) return;
+
+            try {
+                await command.execute(interaction, client);
+            } catch (error) {
+                console.error(`[ERRO COMANDO] ${interaction.commandName}:`, error);
+                await interaction.reply({ 
+                    content: 'Deu ruim ao rodar esse comando, patrão. Tenta de novo.', 
+                    flags: 64 // Ephemeral flag no padrão V2
+                });
             }
+        } 
+        // --- 2. Roteamento Cego de Componentes (Botões, Modais, Selects) ---
+        else if (interaction.isMessageComponent() || interaction.isModalSubmit()) {
+            // Suporte a argumentos no customId (ex: aprovar_membro-12345)
+            // Separamos pelo traço para pegar a rota base
+            const [rota, ...args] = interaction.customId.split('-'); 
             
-            // 2. BOTÕES
-            else if (interaction.isButton()) {
-                let { customId } = interaction;
-                
-                // Trativa de paginação
-                if (customId.startsWith('painel_page_')) customId = 'painel_page';
-                
-                const button = client.buttons.get(customId);
-                if (button) {
-                    await button.execute(interaction, client);
-                } else {
-                    await interaction.deferUpdate().catch(() => {});
-                }
+            const component = client.components.get(rota);
+            
+            if (!component) {
+                // Se não achou o arquivo, ignora ou avisa
+                return interaction.reply({
+                    content: 'Componente não mapeado no sistema.',
+                    flags: 64
+                });
             }
 
-// 3. SELECT MENUS (SISTEMA DE AUTO-CURA / LAZY LOADING)
-            else if (interaction.isAnySelectMenu()) {
-                let select = client.selects.get(interaction.customId);
-                
-                // ANTI-APAGÃO: Se a memória estiver vazia ([]), força a leitura dos arquivos
-                if (!select) {
-                    const fs = require('fs');
-                    const path = require('path');
-                    const selectsPath = path.join(__dirname, '../components/selects');
-                    
-                    if (fs.existsSync(selectsPath)) {
-                        const selectFiles = fs.readdirSync(selectsPath).filter(file => file.endsWith('.js'));
-                        for (const file of selectFiles) {
-                            const req = require(`../components/selects/${file}`);
-                            const fileNameId = file.replace('.js', '');
-                            const identifier = req.customId || req.custom_id || req.id || req.name || fileNameId;
-                            client.selects.set(identifier, req);
-                        }
-                    }
-                    // Tenta resgatar novamente da memória recuperada
-                    select = client.selects.get(interaction.customId);
-                }
-
-                if (select) {
-                    await select.execute(interaction, client);
-                } else {
-                    console.error(`[FALHA CRÍTICA] Select '${interaction.customId}' não existe nos arquivos!`);
-                    await interaction.deferUpdate().catch(() => {});
-                }
-            }
-            // 4. MODAIS (Formulárdsaios)
-            else if (interaction.isModalSubmit()) {
-                const modal = client.modals.get(interaction.customId);
-                if (modal) await modal.execute(interaction, client);
-            }
-            
-        } catch (error) {
-            console.error('[ERRO NA INTERAÇÃO]:', error);
-            
-            // Tratamento anti-vácuo
-            const errorMessage = { content: '❌ Deu BO interno no bot. Tenta de novo ou chama o suporte.', flags: 64 };
-            if (interaction.deferred || interaction.replied) {
-                await interaction.followUp(errorMessage).catch(() => {});
-            } else {
-                await interaction.reply(errorMessage).catch(() => {});
+            try {
+                // Executa passando a interaction, o client e os possiveis argumentos extras
+                await component.execute(interaction, client, args);
+            } catch (error) {
+                console.error(`[ERRO COMPONENTE] ${interaction.customId}:`, error);
+                await interaction.reply({ 
+                    content: 'Erro interno na interface da facção.', 
+                    flags: 64 
+                });
             }
         }
-    },
+    }
 };

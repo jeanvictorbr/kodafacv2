@@ -1,19 +1,18 @@
 {
-  "name": "gpedit-odorizzi",
-  "version": "1.0.0",
-  "description": "",
+  "name": "tropa-da-koda",
+  "version": "2.0.0",
+  "description": "Bot de Gestão Enterprise para Facções (FiveM)",
   "main": "src/index.js",
-"scripts": {
-    "start": "node src/index.js"
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "@prisma/client": "^5.22.0",
-    "discord.js": "^14.27.0",
-    "dotenv": "^17.4.2",
-    "prisma": "^5.22.0"
+    "@prisma/client": "^5.10.0",
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "prisma": "^5.10.0"
   }
 }
