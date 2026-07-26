@@ -1,14 +1,15 @@
-// prisma/schema.prisma
-
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // Tira o Prisma da node_modules e joga pra dentro do nosso projeto
+  output        = "../src/prisma/client"
+  // Garante que vai rodar no Linux da Discloud sem chorar
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
 // Tabela principal: O QG da Facção (Cada servidor é uma facção)
 model Faction {
   guildId       String    @id @unique // ID do Servidor no Discord

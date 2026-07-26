@@ -1,5 +1,5 @@
 // src/components/modal_rh_config.js
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient } = require('../prisma/client');
 const prisma = new PrismaClient();
 
 module.exports = {
