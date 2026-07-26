@@ -21,7 +21,7 @@ module.exports = {
             });
         }
 
-        // 2. Busca o plano da facção no banco pra mostrar dinamicamente
+        // 2. Busca o splano da facção no banco pra mostrar dinamicamente
         const faction = await prisma.faction.findUnique({
             where: { guildId: interaction.guild.id }
         });
