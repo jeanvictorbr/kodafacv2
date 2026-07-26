@@ -5,36 +5,14 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "postinstall": "prisma generate",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "postinstall": "prisma generate"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/jeanvictorbr/kodafacv2.git"
-  },
-  "keywords": [
-    "fvem",
-    "discord",
-    "bot",
-    "faccao",
-    "rp"
-  ],
-  "author": "Koda Studios",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/jeanvictorbr/kodafacv2/issues"
-  },
-  "homepage": "https://github.com/jeanvictorbr/kodafacv2#readme",
   "dependencies": {
-    "@prisma/client": "^7.9.0",
-    "discord.js": "^14.27.0",
-    "dotenv": "^17.4.2"
+    "@prisma/client": "^5.14.0",
+    "discord.js": "^14.15.0",
+    "dotenv": "^16.4.5"
   },
   "devDependencies": {
-    "@types/node": "^26.1.1",
-    "prisma": "^7.9.0",
-    "tsx": "^4.23.1",
-    "typescript": "^7.0.2"
+    "prisma": "^5.14.0"
   }
 }
